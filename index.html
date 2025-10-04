@@ -10,45 +10,51 @@
       src: url('https://github.com/albrechtclaire1007/schoulschreft/raw/main/schoulschreft_bold%5B2%5D.TTF') format('truetype');
       font-weight: bold;
     }
+
     body{
       box-sizing:border-box;margin:0;padding:20px;
       font-family:'Schoulschreft',Arial,sans-serif;
       background:linear-gradient(135deg,#d8ebd4 0%,#8cc987 100%);
       min-height:100vh;display:flex;flex-direction:column;align-items:center;user-select:none;
     }
+
     .game-container{
       width:100%;max-width:900px;background:#fff;border-radius:20px;padding:30px;
-      box-shadow:0 10px 30px rgba(0,0,0,.1);display:flex;flex-direction:column;align-items:center;gap:30px;min-height:70vh;position:relative;
+      box-shadow:0 10px 30px rgba(0,0,0,.1);display:flex;flex-direction:column;align-items:center;gap:24px;min-height:70vh;position:relative;
     }
+
     .progress-bar{width:100%;height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden}
     .progress-fill{height:100%;background:#8cc987;border-radius:4px;transition:width .3s ease}
     .word-counter{font-size:16px;color:#666}
 
-    /* Image section with audio overlay */
+    /* --- IMAGE + AUDIO ROW --- */
     .image-section{
-      position:relative;
+      width:100%;
       display:flex;
-      align-items:center;
+      align-items:center;           /* vertical alignment in the middle of the image */
       justify-content:center;
-    }
-    .toy-image{
-      width:200px;height:200px;object-fit:contain;background:#fff;border-radius:15px;
-      box-shadow:0 5px 15px rgba(0,0,0,.1);
-      display:block;
+      gap:18px;                     /* space between audio icon and image */
+      margin-top:6px;
     }
     .audio-img{
-      position:absolute;
-      top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      width:64px; height:64px;
-      cursor:pointer;
-      -webkit-user-drag:none;
+      width:64px;height:64px;cursor:pointer;
+      -webkit-user-drag:none;user-select:none;
       transition:transform .15s ease;
+      flex:0 0 auto;
     }
-    .audio-img:active{transform:translate(-50%,-50%) scale(0.95);}
+    .audio-img:active{ transform:scale(0.95); }
     .audio-img[aria-disabled="true"]{opacity:.5;pointer-events:none}
 
-    .answer-slots{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;min-height:60px;align-items:center}
+    .toy-image{
+      width:200px;height:200px;object-fit:contain;background:#fff;border-radius:15px;
+      box-shadow:0 5px 15px rgba(0,0,0,.1);display:block;flex:0 0 auto;
+    }
+
+    /* --- ANSWER + LETTERS --- */
+    .answer-slots{
+      width:100%;
+      display:flex;flex-wrap:wrap;justify-content:center;gap:8px;min-height:60px;align-items:center
+    }
     .slot{
       width:50px;height:50px;border:3px dashed #ccc;border-radius:10px;display:flex;align-items:center;justify-content:center;
       font-size:24px;font-weight:bold;background:#f9f9f9;transition:all .2s ease;cursor:pointer
@@ -57,14 +63,24 @@
     .slot.drag-over{border-color:#8cc987;background:#d8ebd4;transform:scale(1.05)}
     .slot.correct{border-color:#8cc987;background:#8cc987;color:#fff}
     .slot.incorrect{border-color:#ff6b6b;background:#ffe0e0;animation:shake .5s ease-in-out}
+
     @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-    .letter-bank{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:20px;background:#f8f8f8;border-radius:15px;min-height:80px}
+
+    .letter-bank{
+      width:100%;
+      display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:16px;background:#f8f8f8;border-radius:15px;min-height:80px
+    }
     .letter-tile{
       width:50px;height:50px;background:#fff;border:2px solid #ddd;border-radius:10px;display:flex;align-items:center;justify-content:center;
       font-size:24px;font-weight:bold;cursor:grab;transition:all .2s ease;box-shadow:0 2px 5px rgba(0,0,0,.1);user-select:none
     }
     .letter-tile:active{cursor:grabbing}
     .letter-tile.used{opacity:.3;pointer-events:none}
+
+    .feedback{font-size:24px;font-weight:bold;min-height:30px;text-align:center}
+    .success{color:#4CAF50;animation:bounce .6s ease-in-out}
+    @keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
     .button-group{display:flex;gap:15px}
     .game-button{padding:12px 24px;border:none;border-radius:25px;font-size:16px;font-family:'Schoulschreft',Arial,sans-serif;cursor:pointer;transition:all .2s ease;font-weight:bold}
     .check-button{background:#8cc987;color:#fff}
@@ -74,9 +90,7 @@
     .reset-button:hover{background:#ff5252}
     .next-button{background:#4CAF50;color:#fff}
     .next-button:hover{background:#45a049}
-    .feedback{font-size:24px;font-weight:bold;min-height:30px;text-align:center}
-    .success{color:#4CAF50;animation:bounce .6s ease-in-out}
-    @keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
     .final-screen{text-align:center;padding:40px 20px}
     .final-screen h1{color:#8cc987;font-size:32px;margin-bottom:20px}
     .final-score{font-size:24px;color:#666;margin-bottom:30px}
@@ -95,15 +109,12 @@
       <div class="word-counter" id="wordCounter">Wuert 1 vun 12</div>
     </div>
 
+    <!-- AUDIO (left) + IMAGE (right), middle aligned -->
     <div class="image-section">
-      <!-- toy image -->
-      <img class="toy-image" id="toyImage" alt="Spillsaach">
-      <!-- overlay audio icon -->
-      <img id="audioImg" class="audio-img" 
+      <img id="audioImg" class="audio-img"
            src="https://i.postimg.cc/kXzQdjQp/temp-Imagef0iu-HC.avif"
-           alt="Toun nei ofspillen"
-           role="button"
-           tabindex="0">
+           alt="Toun nei ofspillen" role="button" tabindex="0">
+      <img class="toy-image" id="toyImage" alt="Spillsaach">
     </div>
 
     <div class="answer-slots" id="answerSlots"></div>
@@ -120,21 +131,37 @@
   <audio id="audio" preload="auto" playsinline></audio>
 
   <script>
-    // --- AUDIO AUTOPLAY UNLOCK ---
-    let audioReady = false;
+    // --- AUDIO UNLOCK + REPLAY ---
     const audioEl = document.getElementById('audio');
-    function unlockAudioOnce() {
+    const audioImg = document.getElementById('audioImg');
+    let audioReady = false;
+
+    function unlockAudio() {
       if (audioReady) return;
       audioEl.muted = true;
       audioEl.play().then(() => {
         audioEl.pause(); audioEl.currentTime = 0; audioEl.muted = false;
         audioReady = true;
-      }).catch(()=>{}); 
+      }).catch(()=>{ /* will still play on gesture-tied calls */ });
     }
-    document.addEventListener('pointerdown', unlockAudioOnce, { once:true });
-    document.getElementById('audioImg').addEventListener('click', unlockAudioOnce, { once:true });
+    window.addEventListener('load', unlockAudio);
+    ['pointerdown','click','touchstart','keydown','focus'].forEach(evt =>
+      document.addEventListener(evt, unlockAudio, {passive:true})
+    );
 
-    // fixed mapping
+    function replayAudio() {
+      if (!current) return;
+      audioEl.currentTime = 0;
+      audioEl.play().catch(()=>{});
+      audioImg.style.transform = 'scale(0.95)';
+      setTimeout(()=> audioImg.style.transform = 'scale(1)', 140);
+    }
+    audioImg.addEventListener('click', replayAudio);
+    audioImg.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); replayAudio(); }
+    });
+
+    // --- DATA ---
     const fixedPairs = [
       { word: 'Kaartespill', image: 'https://i.postimg.cc/VSxkQyb8/temp-Image2t-Ew-Ew.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1kaarte.mp3' },
       { word: 'Popp',        image: 'https://i.postimg.cc/7CFZ8vTw/temp-Imagee-DSUs6.avif',    audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1popp.mp3' },
@@ -151,37 +178,48 @@
     ];
 
     const words = [...fixedPairs].sort(() => Math.random() - 0.5);
+
+    // --- STATE ---
     let currentWordIndex = 0;
     let currentAnswer = [];
+    let current = null;
 
-    function shuffleArray(arr){
+    // --- HELPERS ---
+    const shuffleArray = (arr) => {
       const s=[...arr];
       for(let i=s.length-1;i>0;i--){
         const j=Math.floor(Math.random()*(i+1));
         [s[i],s[j]]=[s[j],s[i]];
       }
       return s;
-    }
+    };
 
     function initializeWord(){
-      const current = words[currentWordIndex];
+      current = words[currentWordIndex];
+
+      // header + progress
       document.getElementById('wordCounter').textContent = `Wuert ${currentWordIndex + 1} vun ${words.length}`;
       document.getElementById('progressFill').style.width = ((currentWordIndex) / words.length) * 100 + '%';
-      document.getElementById('toyImage').src = current.image;
-      document.getElementById('toyImage').alt = current.word;
+
+      // image + audio
+      const toyImage = document.getElementById('toyImage');
+      toyImage.src = current.image;
+      toyImage.alt = current.word;
       audioEl.src = current.audio;
 
-      currentAnswer = [];
+      // feedback & buttons
       document.getElementById('feedback').textContent = '';
       document.getElementById('nextButton').style.display = 'none';
       document.getElementById('checkButton').disabled = false;
 
+      // answer slots
       const answerSlots = document.getElementById('answerSlots');
       answerSlots.innerHTML = '';
       for (let i = 0; i < current.word.length; i++){
         const slot = document.createElement('div');
         slot.className = 'slot';
         slot.dataset.index = i;
+
         slot.addEventListener('click', ()=> removeLetter(i));
         slot.addEventListener('dragover', (e)=>{ e.preventDefault(); slot.classList.add('drag-over'); });
         slot.addEventListener('dragleave', ()=> slot.classList.remove('drag-over'));
@@ -192,18 +230,21 @@
           const tileUid = e.dataTransfer.getData('tile-uid');
           placeLetterInSlot(letter, i, tileUid);
         });
+
         answerSlots.appendChild(slot);
       }
 
-      const shuffled = shuffleArray([...current.word]);
+      // letter bank (unique tiles so duplicates work)
       const letterBank = document.getElementById('letterBank');
       letterBank.innerHTML = '';
+      const shuffled = shuffleArray([...current.word]);
       shuffled.forEach((letter, idx)=>{
         const tile = document.createElement('div');
         tile.className = 'letter-tile';
         tile.textContent = letter;
         tile.draggable = true;
         tile.dataset.uid = `${currentWordIndex}-${idx}-${Math.random().toString(36).slice(2,7)}`;
+
         tile.addEventListener('click', ()=> placeLetter(tile, letter));
         tile.addEventListener('dragstart', (e)=>{
           if (tile.classList.contains('used')) { e.preventDefault(); return; }
@@ -211,6 +252,7 @@
           e.dataTransfer.setData('tile-uid', tile.dataset.uid);
           e.dataTransfer.effectAllowed = 'move';
         });
+
         letterBank.appendChild(tile);
       });
 
@@ -229,7 +271,7 @@
           currentAnswer[i] = letter;
           slots[i].textContent = letter;
           slots[i].classList.add('filled');
-          slots[i].dataset.tileUid = tile.dataset.uid;
+          slots[i].dataset.tileUid = tile.dataset.uid; // track exact tile
           tile.classList.add('used');
           break;
         }
@@ -239,10 +281,12 @@
     function placeLetterInSlot(letter, slotIndex, tileUid){
       const slots = document.querySelectorAll('.slot');
       if (currentAnswer[slotIndex] !== '') removeLetter(slotIndex);
+
       currentAnswer[slotIndex] = letter;
       slots[slotIndex].textContent = letter;
       slots[slotIndex].classList.add('filled');
       slots[slotIndex].dataset.tileUid = tileUid;
+
       const tile = findTileByUid(tileUid);
       if (tile) tile.classList.add('used');
     }
@@ -253,6 +297,7 @@
       const tileUid = slots[slotIndex].dataset.tileUid;
       const tile = tileUid ? findTileByUid(tileUid) : null;
       if (tile) tile.classList.remove('used');
+
       currentAnswer[slotIndex] = '';
       slots[slotIndex].textContent = '';
       slots[slotIndex].classList.remove('filled','correct','incorrect');
@@ -271,10 +316,11 @@
     }
 
     function checkAnswer(){
-      const target = words[currentWordIndex].word;
+      const target = current.word;
       const answer = currentAnswer.join('');
       const slots = document.querySelectorAll('.slot');
       const feedback = document.getElementById('feedback');
+
       if (answer === target){
         slots.forEach(s => s.classList.add('correct'));
         feedback.textContent = 'Super!';
@@ -287,6 +333,7 @@
             const tileUid = slots[i].dataset.tileUid;
             const tile = tileUid ? findTileByUid(tileUid) : null;
             if (tile) tile.classList.remove('used');
+
             slots[i].classList.add('incorrect');
             currentAnswer[i] = '';
             slots[i].textContent = '';
@@ -295,5 +342,32 @@
             slots[i].classList.add('correct');
           }
         }
-     
+      }
+    }
+
+    function nextWord(){
+      currentWordIndex++;
+      if (currentWordIndex >= words.length){
+        const container = document.querySelector('.game-container');
+        container.innerHTML = `
+          <div class="final-screen">
+            <h1>Gratulatioun!</h1>
+            <div class="final-score">Dir hutt all ${words.length} Wierder richteg geschriwwen!</div>
+            <button class="game-button" style="background:#8cc987;color:#fff;border-radius:25px" onclick="location.reload()">Nei ufänken</button>
+          </div>`;
+      } else {
+        initializeWord();
+      }
+    }
+
+    // Buttons
+    document.getElementById('checkButton').addEventListener('click', checkAnswer);
+    document.getElementById('resetButton').addEventListener('click', resetWord);
+    document.getElementById('nextButton').addEventListener('click', nextWord);
+
+    // Start
+    initializeWord();
+  </script>
+</body>
+</html>
 
