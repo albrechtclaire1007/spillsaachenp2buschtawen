@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="lb">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schreif d'Wuert – Spillsaachen</title>
+  <style>
+    @font-face {
+      font-family: 'Schoulschreft';
+      src: url('https://github.com/albrechtclaire1007/schoulschreft/raw/main/schoulschreft_bold%5B2%5D.TTF') format('truetype');
+      font-weight: bold;
+    }
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 20px;
+      font-family: 'Schoulschreft', Arial, sans-serif;
+      background: linear-gradient(135deg, #d8ebd4 0%, #8cc987 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      user-select: none;
+    }
+    .game-container {
+      width: 100%;
+      max-width: 900px;
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      min-height: 70vh;
+      position: relative;
+    }
+    .progress-bar { width: 100%; height: 8px; background: #f0f0f0; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #8cc987; border-radius: 4px; transition: width 0.3s ease; }
+    .word-counter { font-size: 16px; color: #666; margin-bottom: 20px; }
+    .image-section { display: flex; align-items: flex-start; gap: 20px; }
+    .audio-button {
+      background: #8cc987; color: white; border: none; padding: 12px; border-radius: 50%;
+      width: 50px; height: 50px; cursor: pointer; transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(140, 201, 135, 0.3);
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+      align-self: flex-start; margin-bottom: 20px;
+    }
+    .audio-button:hover { background: #7ab87a; transform: scale(1.1); }
+    .toy-image { width: 200px; height: 200px; object-fit: contain; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .answer-slots { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 20px; min-height: 60px; align-items: center; }
+    .slot {
+      width: 50px; height: 50px; border: 3px dashed #ccc; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 24px;
+      background: #f9f9f9; transition: all 0.3s ease; cursor: pointer;
+    }
+    .slot.filled { border: 3px solid #8cc987; background: #d8ebd4; color: black; }
+    .slot.drag-over { border-color: #8cc987; background: #d8ebd4; transform: scale(1.05); }
+    .slot.correct { border-color: #8cc987; background: #8cc987; color: white; }
+    .slot.incorrect { border-color: #ff6b6b; background: #ffe0e0; animation: shake 0.5s ease-in-out; }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+    .letter-bank { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px; padding: 20px; background: #f8f8f8; border-radius: 15px; min-height: 80px; }
+    .letter-tile {
+      width: 50px; height: 50px; background: white; border: 2px solid #ddd; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 24px;
+      cursor: grab; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .letter-tile.used { opacity: 0.3; pointer-events: none; }
+    .button-group { display: flex; gap: 15px; margin-top: auto; }
+    .game-button { padding: 12px 24px; border: none; border-radius: 25px; font-size: 16px; font-family: 'Schoulschreft', Arial, sans-serif; cursor: pointer; transition: all 0.3s ease; font-weight: bold; }
+    .check-button { background: #8cc987; color: white; }
+    .check-button:hover { background: #7ab87a; }
+    .check-button:disabled { background: #ccc; cursor: not-allowed; }
+    .reset-button { background: #ff6b6b; color: white; }
+    .reset-button:hover { background: #ff5252; }
+    .next-button { background: #4CAF50; color: white; }
+    .next-button:hover { background: #45a049; }
+    .feedback { font-size: 24px; font-weight: bold; margin: 20px 0; text-align: center; min-height: 30px; }
+    .success { color: #4CAF50; animation: bounce 0.6s ease-in-out; }
+    @keyframes bounce { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+    .final-screen { text-align: center; padding: 40px 20px; }
+    .final-screen h1 { color: #8cc987; font-size: 32px; margin-bottom: 20px; }
+    .final-score { font-size: 24px; color: #666; margin-bottom: 30px; }
+    .restart-button { background: #8cc987; color: white; padding: 15px 30px; border: none; border-radius: 25px; font-size: 18px; font-family: 'Schoulschreft', Arial, sans-serif; cursor: pointer; transition: all 0.3s ease; }
+    .restart-button:hover { background: #7ab87a; }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="word-counter" id="wordCounter">Wuert 1 vun 12</div>
+
+    <div class="image-section">
+      <button class="audio-button" id="audioButton" aria-label="Toun ofspillen">
+        ▶️
+      </button>
+      <img class="toy-image" id="toyImage" alt="Spillsaach">
+    </div>
+
+    <div class="answer-slots" id="answerSlots"></div>
+    <div class="letter-bank" id="letterBank"></div>
+    <div class="feedback" id="feedback"></div>
+
+    <div class="button-group">
+      <button class="game-button reset-button" id="resetButton">zrécksetzen</button>
+      <button class="game-button check-button" id="checkButton">kontrolléieren</button>
+      <button class="game-button next-button" id="nextButton" style="display:none;">weider</button>
+    </div>
+  </div>
+
+  <audio id="audio" preload="auto"></audio>
+
+  <script>
+    const words = [
+      { word: 'Teddybier', image: 'https://i.postimg.cc/VSxkQyb8/temp-Image2t-Ew-Ew.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/teddybier1.mp3' },
+      { word: 'Vëlo', image: 'https://i.postimg.cc/7CFZ8vTw/temp-Imagee-DSUs6.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1velo.mp3' },
+      { word: 'Roboter', image: 'https://i.postimg.cc/XB3NqwL4/temp-Image-Jgec-Ta.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1roboter.mp3' },
+      { word: 'Fliger', image: 'https://i.postimg.cc/p9wLbNnb/temp-Image-MIU98-V.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1fliger.mp3' },
+      { word: 'Ball', image: 'https://i.postimg.cc/DW9wkVb3/temp-Image-NAjh-GW.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1ball.mp3' },
+      { word: 'Radio', image: 'https://i.postimg.cc/dkGtJW8B/temp-Imagep2-X0pu.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1radio.mp3' },
+      { word: 'Péssel', image: 'https://i.postimg.cc/tZFC9rhF/temp-Image-PC26-QV.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1pesel.mp3' },
+      { word: 'Wierfel', image: 'https://i.postimg.cc/G8vhbMkx/temp-Image-SMSSD4.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1wierfel.mp3' },
+      { word: 'Popp', image: 'https://i.postimg.cc/Q9cxj6pq/temp-Imagev-ZAm8p.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1popp.mp3' },
+      { word: 'Trommel', image: 'https://i.postimg.cc/xNYj8K5f/temp-Image-W250-J5.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1trommel.mp3' },
+      { word: 'Videospill', image: 'https://i.postimg.cc/vxM8TWhR/temp-Image-Xr-Gmf-G.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1video.mp3' },
+      { word: 'Kaartespill', image: 'https://i.postimg.cc/vxM8TWhy/temp-Image-Zp-G0-TR.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1kaarte.mp3' }
+    ];
+
+    // Shuffle automatically
+    words.sort(() => Math.random() - 0.5);
+
+    let currentWordIndex = 0;
+    let currentAnswer = [];
+
+    const audioEl = document.getElementById('audio');
+
+    function shuffleArray(arr) {
+      const s = [...arr];
+      for (let i = s.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [s[i], s[j]] = [s[j], s[i]];
+      }
+      return s;
+    }
+
+    function initializeWord() {
+      const current = words[currentWordIndex];
+      document.getElementById('toyImage').src = current.image;
+      document.getElementById('toyImage').alt = current.word;
+      audioEl.src = current.audio;
+
+      document.getElementById('wordCounter').textContent = `Wuert ${currentWordIndex + 1} vun ${words.length}`;
+      document.getElementById('progressFill').style.width = ((currentWordIndex) / words.length) * 100 + '%';
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('nextButton').style.display = 'none';
+      document.getElementById('checkButton').disabled = false;
+
+      const answerSlots = document.getElementById('answerSlots');
+      answerSlots.innerHTML = '';
+      currentAnswer = new Array(current.word.length).fill('');
+
+      for (let i = 0; i < current.word.length; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'slot';
+        slot.addEventListener('click', () => removeLetter(i));
+        answerSlots.appendChild(slot);
+      }
+
+      const letters = shuffleArray([...current.word]);
+      const letterBank = document.getElementById('letterBank');
+      letterBank.innerHTML = '';
+
+      letters.forEach(letter => {
+        const tile = document.createElement('div');
+        tile.className = 'letter-tile';
+        tile.textContent = letter;
+        tile.addEventListener('click', () => placeLetter(tile, letter));
+        letterBank.appendChild(tile);
+      });
+    }
+
+    function placeLetter(tile, letter) {
+      if (tile.classList.contains('used')) return;
+      const slots = document.querySelectorAll('.slot');
+      for (let i = 0; i < slots.length; i++) {
+        if (currentAnswer[i] === '') {
+          currentAnswer[i] = letter;
+          slots[i].textContent = letter;
+          slots[i].classList.add('filled');
+          tile.classList.add('used');
+          break;
+        }
+      }
+    }
+
+    function removeLetter(index) {
+      const slots = document.querySelectorAll('.slot');
+      const tiles = document.querySelectorAll('.letter-tile');
+      const letter = currentAnswer[index];
+      if (!letter) return;
+      slots[index].textContent = '';
+      slots[index].classList.remove('filled');
+      currentAnswer[index] = '';
+      tiles.forEach(t => {
+        if (t.textContent === letter && t.classList.contains('used')) {
+          t.classList.remove('used');
+          return;
+        }
+      });
+    }
+
+    function resetWord() {
+      document.querySelectorAll('.slot').forEach(s => { s.textContent = ''; s.className = 'slot'; });
+      document.querySelectorAll('.letter-tile').forEach(t => t.classList.remove('used'));
+      currentAnswer = new Array(words[currentWordIndex].word.length).fill('');
+      document.getElementById('feedback').textContent = '';
+    }
+
+    function checkAnswer() {
+      const target = words[currentWordIndex].word;
+      const answer = currentAnswer.join('');
+      const slots = document.querySelectorAll('.slot');
+      const feedback = document.getElementById('feedback');
+
+      if (answer === target) {
+        feedback.textContent = 'Super!';
+        feedback.className = 'feedback success';
+        slots.forEach(s => s.classList.add('correct'));
+        document.getElementById('nextButton').style.display = 'inline-block';
+        document.getElementById('checkButton').disabled = true;
+      } else {
+        for (let i = 0; i < target.length; i++) {
+          if (currentAnswer[i] !== target[i]) {
+            slots[i].classList.add('incorrect');
+            setTimeout(() => slots[i].classList.remove('incorrect'), 500);
+            removeLetter(i);
+          } else {
+            slots[i].classList.add('correct');
+          }
+        }
+      }
+    }
+
+    function nextWord() {
+      currentWordIndex++;
+      if (currentWordIndex >= words.length) {
+        document.querySelector('.game-container').innerHTML = `
+          <div class="final-screen">
+            <h1>Gratulatioun!</h1>
+            <div class="final-score">Dir hutt all ${words.length} Wierder richteg geschriwwen!</div>
+            <button class="restart-button" onclick="location.reload()">Nei ufänken</button>
+          </div>`;
+      } else {
+        initializeWord();
+      }
+    }
+
+    function playAudio() {
+      audioEl.currentTime = 0;
+      audioEl.play();
+      const btn = document.getElementById('audioButton');
+      btn.style.transform = 'scale(0.95)';
+      setTimeout(() => btn.style.transform = 'scale(1)', 150);
+    }
+
+    document.getElementById('checkButton').addEventListener('click', checkAnswer);
+    document.getElementById('resetButton').addEventListener('click', resetWord);
+    document.getElementById('nextButton').addEventListener('click', nextWord);
+    document.getElementById('audioButton').addEventListener('click', playAudio);
+
+    initializeWord();
+  </script>
+</body>
+</html>
