@@ -27,10 +27,10 @@
     .audio-button{
       background:#8cc987;border:none;border-radius:50%;width:50px;height:50px;
       display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s ease;
-      box-shadow:0 3px 10px rgba(140,201,135,.3)
+      box-shadow:0 3px 10px rgba(140,201,135,.3); overflow:hidden; /* clip any white edge */
     }
     .audio-button:hover{background:#7ab87a;transform:scale(1.1)}
-    .audio-button img{width:28px;height:28px}
+    .audio-button img{width:70%;height:70%;object-fit:contain;display:block;pointer-events:none}
     .toy-image{
       width:200px;height:200px;object-fit:contain;background:#fff;border-radius:15px;
       box-shadow:0 5px 15px rgba(0,0,0,.1)
@@ -101,9 +101,24 @@
     </div>
   </div>
 
-  <audio id="audio" preload="auto"></audio>
+  <audio id="audio" preload="auto" playsinline></audio>
 
   <script>
+    // --- AUDIO AUTOPLAY UNLOCK ---
+    let audioReady = false;
+    const audioEl = document.getElementById('audio');
+    function unlockAudioOnce() {
+      if (audioReady) return;
+      audioEl.muted = true;
+      audioEl.play().then(() => {
+        audioEl.pause(); audioEl.currentTime = 0; audioEl.muted = false;
+        audioReady = true;
+      }).catch(()=>{}); // ignore; will retry on next tap
+    }
+    // any first user gesture unlocks audio
+    document.addEventListener('pointerdown', unlockAudioOnce, { once:true });
+    document.getElementById('audioButton').addEventListener('click', unlockAudioOnce, { once:true });
+
     // fixed mapping (pairs stay together)
     const fixedPairs = [
       { word: 'Kaartespill', image: 'https://i.postimg.cc/VSxkQyb8/temp-Image2t-Ew-Ew.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1kaarte.mp3' },
@@ -125,7 +140,6 @@
 
     let currentWordIndex = 0;
     let currentAnswer = [];
-    const audioEl = document.getElementById('audio');
 
     function shuffleArray(arr){
       const s=[...arr];
@@ -304,7 +318,9 @@
     }
 
     function playAudio(){
-      try{ audioEl.currentTime = 0; audioEl.play(); }catch(e){}
+      if (!audioReady) return unlockAudioOnce();
+      audioEl.currentTime = 0;
+      audioEl.play().catch(()=>{});
       const btn = document.getElementById('audioButton');
       btn.style.transform = 'scale(0.95)';
       setTimeout(()=> btn.style.transform = 'scale(1)',150);
