@@ -85,7 +85,7 @@
 
     <div class="image-section">
       <button class="audio-button" id="audioButton" aria-label="Toun ofspillen">
-        <img src="https://postimg.cc/06gvWYS9" alt="Audio">
+        <img src="https://i.postimg.cc/PqJqqKrv/temp-Imageuq-WDFq.avif" alt="Audio">
       </button>
       <img class="toy-image" id="toyImage" alt="Spillsaach">
     </div>
@@ -100,16 +100,11 @@
       <button class="game-button next-button" id="nextButton" style="display:none">weider</button>
     </div>
   </div>
-  
-  <button class="audio-button" id="audioButton" aria-label="Toun ofspillen">
-  <img src="https://i.postimg.cc/PqJqqKrv/temp-Imageuq-WDFq.avif" alt="Audio">
-</button>
-
 
   <audio id="audio" preload="auto"></audio>
 
   <script>
-    // Fixed mappings (word + image + audio stay together)
+    // fixed mapping (pairs stay together)
     const fixedPairs = [
       { word: 'Kaartespill', image: 'https://i.postimg.cc/VSxkQyb8/temp-Image2t-Ew-Ew.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1kaarte.mp3' },
       { word: 'Popp',        image: 'https://i.postimg.cc/7CFZ8vTw/temp-Imagee-DSUs6.avif',    audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1popp.mp3' },
@@ -125,7 +120,7 @@
       { word: 'Wierfel',     image: 'https://i.postimg.cc/vxM8TWhy/temp-Image-Zp-G0-TR.avif',  audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1wierfel.mp3' }
     ];
 
-    // Shuffle order ONCE, keep pairs intact
+    // random order each reload, pairs intact
     const words = [...fixedPairs].sort(() => Math.random() - 0.5);
 
     let currentWordIndex = 0;
@@ -161,7 +156,7 @@
       document.getElementById('nextButton').style.display = 'none';
       document.getElementById('checkButton').disabled = false;
 
-      // Build slots
+      // slots
       answerSlots.innerHTML = '';
       for (let i = 0; i < current.word.length; i++){
         const slot = document.createElement('div');
@@ -182,9 +177,8 @@
         answerSlots.appendChild(slot);
       }
 
-      // Build letter bank with unique tiles (duplicates safe)
-      const letters = [...current.word];
-      const shuffled = shuffleArray(letters);
+      // letter bank (unique tiles so duplicates work)
+      const shuffled = shuffleArray([...current.word]);
       letterBank.innerHTML = '';
 
       shuffled.forEach((letter, idx)=>{
@@ -220,8 +214,7 @@
           currentAnswer[i] = letter;
           slots[i].textContent = letter;
           slots[i].classList.add('filled');
-          // Track exact tile used for this slot
-          slots[i].dataset.tileUid = tile.dataset.uid;
+          slots[i].dataset.tileUid = tile.dataset.uid; // track exact tile
           tile.classList.add('used');
           break;
         }
@@ -317,13 +310,13 @@
       setTimeout(()=> btn.style.transform = 'scale(1)',150);
     }
 
-    // Events
+    // events
     document.getElementById('checkButton').addEventListener('click', checkAnswer);
     document.getElementById('resetButton').addEventListener('click', resetWord);
     document.getElementById('nextButton').addEventListener('click', nextWord);
     document.getElementById('audioButton').addEventListener('click', playAudio);
 
-    // Init
+    // init
     initializeWord();
   </script>
 </body>
