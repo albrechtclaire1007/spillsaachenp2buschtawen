@@ -23,18 +23,31 @@
     .progress-bar{width:100%;height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden}
     .progress-fill{height:100%;background:#8cc987;border-radius:4px;transition:width .3s ease}
     .word-counter{font-size:16px;color:#666}
-    .image-section{display:flex;align-items:flex-start;gap:20px}
-    .audio-button{
-      background:#8cc987;border:none;border-radius:50%;width:50px;height:50px;
-      display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s ease;
-      box-shadow:0 3px 10px rgba(140,201,135,.3); overflow:hidden; /* clip any white edge */
+
+    /* Image section with audio overlay */
+    .image-section{
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
-    .audio-button:hover{background:#7ab87a;transform:scale(1.1)}
-    .audio-button img{width:70%;height:70%;object-fit:contain;display:block;pointer-events:none}
     .toy-image{
       width:200px;height:200px;object-fit:contain;background:#fff;border-radius:15px;
-      box-shadow:0 5px 15px rgba(0,0,0,.1)
+      box-shadow:0 5px 15px rgba(0,0,0,.1);
+      display:block;
     }
+    .audio-img{
+      position:absolute;
+      top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      width:64px; height:64px;
+      cursor:pointer;
+      -webkit-user-drag:none;
+      transition:transform .15s ease;
+    }
+    .audio-img:active{transform:translate(-50%,-50%) scale(0.95);}
+    .audio-img[aria-disabled="true"]{opacity:.5;pointer-events:none}
+
     .answer-slots{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;min-height:60px;align-items:center}
     .slot{
       width:50px;height:50px;border:3px dashed #ccc;border-radius:10px;display:flex;align-items:center;justify-content:center;
@@ -68,11 +81,10 @@
     .final-screen h1{color:#8cc987;font-size:32px;margin-bottom:20px}
     .final-score{font-size:24px;color:#666;margin-bottom:30px}
 
-    @media (max-width:768px){.game-container{max-width:420px;padding:20px}}
     @media (max-width:480px){
-      .game-container{padding:15px}
       .toy-image{width:150px;height:150px}
       .slot,.letter-tile{width:45px;height:45px;font-size:20px}
+      .audio-img{width:56px;height:56px;}
     }
   </style>
 </head>
@@ -84,10 +96,14 @@
     </div>
 
     <div class="image-section">
-      <button class="audio-button" id="audioButton" aria-label="Toun ofspillen">
-        <img src="https://i.postimg.cc/PqJqqKrv/temp-Imageuq-WDFq.avif" alt="Audio">
-      </button>
+      <!-- toy image -->
       <img class="toy-image" id="toyImage" alt="Spillsaach">
+      <!-- overlay audio icon -->
+      <img id="audioImg" class="audio-img" 
+           src="https://i.postimg.cc/kXzQdjQp/temp-Imagef0iu-HC.avif"
+           alt="Toun nei ofspillen"
+           role="button"
+           tabindex="0">
     </div>
 
     <div class="answer-slots" id="answerSlots"></div>
@@ -113,13 +129,12 @@
       audioEl.play().then(() => {
         audioEl.pause(); audioEl.currentTime = 0; audioEl.muted = false;
         audioReady = true;
-      }).catch(()=>{}); // ignore; will retry on next tap
+      }).catch(()=>{}); 
     }
-    // any first user gesture unlocks audio
     document.addEventListener('pointerdown', unlockAudioOnce, { once:true });
-    document.getElementById('audioButton').addEventListener('click', unlockAudioOnce, { once:true });
+    document.getElementById('audioImg').addEventListener('click', unlockAudioOnce, { once:true });
 
-    // fixed mapping (pairs stay together)
+    // fixed mapping
     const fixedPairs = [
       { word: 'Kaartespill', image: 'https://i.postimg.cc/VSxkQyb8/temp-Image2t-Ew-Ew.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1kaarte.mp3' },
       { word: 'Popp',        image: 'https://i.postimg.cc/7CFZ8vTw/temp-Imagee-DSUs6.avif',    audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1popp.mp3' },
@@ -135,9 +150,7 @@
       { word: 'Wierfel',     image: 'https://i.postimg.cc/vxM8TWhy/temp-Image-Zp-G0-TR.avif',  audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1wierfel.mp3' }
     ];
 
-    // random order each reload, pairs intact
     const words = [...fixedPairs].sort(() => Math.random() - 0.5);
-
     let currentWordIndex = 0;
     let currentAnswer = [];
 
@@ -152,31 +165,23 @@
 
     function initializeWord(){
       const current = words[currentWordIndex];
-      const toyImage = document.getElementById('toyImage');
-      const answerSlots = document.getElementById('answerSlots');
-      const letterBank = document.getElementById('letterBank');
-      const feedback = document.getElementById('feedback');
-      const progressFill = document.getElementById('progressFill');
-
       document.getElementById('wordCounter').textContent = `Wuert ${currentWordIndex + 1} vun ${words.length}`;
-      progressFill.style.width = ((currentWordIndex) / words.length) * 100 + '%';
-
-      toyImage.src = current.image;
-      toyImage.alt = current.word;
+      document.getElementById('progressFill').style.width = ((currentWordIndex) / words.length) * 100 + '%';
+      document.getElementById('toyImage').src = current.image;
+      document.getElementById('toyImage').alt = current.word;
       audioEl.src = current.audio;
 
       currentAnswer = [];
-      feedback.textContent = '';
+      document.getElementById('feedback').textContent = '';
       document.getElementById('nextButton').style.display = 'none';
       document.getElementById('checkButton').disabled = false;
 
-      // slots
+      const answerSlots = document.getElementById('answerSlots');
       answerSlots.innerHTML = '';
       for (let i = 0; i < current.word.length; i++){
         const slot = document.createElement('div');
         slot.className = 'slot';
         slot.dataset.index = i;
-
         slot.addEventListener('click', ()=> removeLetter(i));
         slot.addEventListener('dragover', (e)=>{ e.preventDefault(); slot.classList.add('drag-over'); });
         slot.addEventListener('dragleave', ()=> slot.classList.remove('drag-over'));
@@ -187,21 +192,18 @@
           const tileUid = e.dataTransfer.getData('tile-uid');
           placeLetterInSlot(letter, i, tileUid);
         });
-
         answerSlots.appendChild(slot);
       }
 
-      // letter bank (unique tiles so duplicates work)
       const shuffled = shuffleArray([...current.word]);
+      const letterBank = document.getElementById('letterBank');
       letterBank.innerHTML = '';
-
       shuffled.forEach((letter, idx)=>{
         const tile = document.createElement('div');
         tile.className = 'letter-tile';
         tile.textContent = letter;
         tile.draggable = true;
         tile.dataset.uid = `${currentWordIndex}-${idx}-${Math.random().toString(36).slice(2,7)}`;
-
         tile.addEventListener('click', ()=> placeLetter(tile, letter));
         tile.addEventListener('dragstart', (e)=>{
           if (tile.classList.contains('used')) { e.preventDefault(); return; }
@@ -209,7 +211,6 @@
           e.dataTransfer.setData('tile-uid', tile.dataset.uid);
           e.dataTransfer.effectAllowed = 'move';
         });
-
         letterBank.appendChild(tile);
       });
 
@@ -228,7 +229,7 @@
           currentAnswer[i] = letter;
           slots[i].textContent = letter;
           slots[i].classList.add('filled');
-          slots[i].dataset.tileUid = tile.dataset.uid; // track exact tile
+          slots[i].dataset.tileUid = tile.dataset.uid;
           tile.classList.add('used');
           break;
         }
@@ -238,12 +239,10 @@
     function placeLetterInSlot(letter, slotIndex, tileUid){
       const slots = document.querySelectorAll('.slot');
       if (currentAnswer[slotIndex] !== '') removeLetter(slotIndex);
-
       currentAnswer[slotIndex] = letter;
       slots[slotIndex].textContent = letter;
       slots[slotIndex].classList.add('filled');
       slots[slotIndex].dataset.tileUid = tileUid;
-
       const tile = findTileByUid(tileUid);
       if (tile) tile.classList.add('used');
     }
@@ -254,7 +253,6 @@
       const tileUid = slots[slotIndex].dataset.tileUid;
       const tile = tileUid ? findTileByUid(tileUid) : null;
       if (tile) tile.classList.remove('used');
-
       currentAnswer[slotIndex] = '';
       slots[slotIndex].textContent = '';
       slots[slotIndex].classList.remove('filled','correct','incorrect');
@@ -277,7 +275,6 @@
       const answer = currentAnswer.join('');
       const slots = document.querySelectorAll('.slot');
       const feedback = document.getElementById('feedback');
-
       if (answer === target){
         slots.forEach(s => s.classList.add('correct'));
         feedback.textContent = 'Super!';
@@ -290,7 +287,6 @@
             const tileUid = slots[i].dataset.tileUid;
             const tile = tileUid ? findTileByUid(tileUid) : null;
             if (tile) tile.classList.remove('used');
-
             slots[i].classList.add('incorrect');
             currentAnswer[i] = '';
             slots[i].textContent = '';
@@ -299,42 +295,5 @@
             slots[i].classList.add('correct');
           }
         }
-      }
-    }
-
-    function nextWord(){
-      currentWordIndex++;
-      if (currentWordIndex >= words.length){
-        const container = document.querySelector('.game-container');
-        container.innerHTML = `
-          <div class="final-screen">
-            <h1>Gratulatioun!</h1>
-            <div class="final-score">Dir hutt all ${words.length} Wierder richteg geschriwwen!</div>
-            <button class="game-button" style="background:#8cc987;color:#fff;border-radius:25px" onclick="location.reload()">Nei ufänken</button>
-          </div>`;
-      } else {
-        initializeWord();
-      }
-    }
-
-    function playAudio(){
-      if (!audioReady) return unlockAudioOnce();
-      audioEl.currentTime = 0;
-      audioEl.play().catch(()=>{});
-      const btn = document.getElementById('audioButton');
-      btn.style.transform = 'scale(0.95)';
-      setTimeout(()=> btn.style.transform = 'scale(1)',150);
-    }
-
-    // events
-    document.getElementById('checkButton').addEventListener('click', checkAnswer);
-    document.getElementById('resetButton').addEventListener('click', resetWord);
-    document.getElementById('nextButton').addEventListener('click', nextWord);
-    document.getElementById('audioButton').addEventListener('click', playAudio);
-
-    // init
-    initializeWord();
-  </script>
-</body>
-</html>
+     
 
