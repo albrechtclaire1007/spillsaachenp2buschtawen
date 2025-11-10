@@ -13,10 +13,15 @@
   }
 
   :root{
-    /* P2 green */
-    --p2-main:#8cc987; 
+    /* P2 greens */
+    --p2-main:#8cc987;
     --p2-soft:#d8ebd4;
     --p2-dark:#6bae72;
+
+    /* Prep colours */
+    --prep-blue:#b2d3f5;  /* for "mam" by default */
+    --prep-green:#8cc987; /* for "mam" with Videospill/Kaartespill */
+    --prep-red:#ffb5b5;   /* for "mat der" */
 
     --ink:#1f1f1f; --white:#fff; --bad:#ffcccc; --ok:#b7f0c8;
     --border:3px;
@@ -41,7 +46,7 @@
   .flow{opacity:.9; font-size:1rem; padding:0 .4rem; min-width:9ch; text-align:center;}
   .hidden{display:none !important;}
 
-  .wrap{min-height:100%; display:flex; flex-direction:column; align-items:center; gap:2.5vmin; padding:2.5vmin 3vmin 4vmin;}
+  .wrap{min-height:100%; display:flex; flex-direction:column; align-items:center; gap:2.2vmin; padding:2.2vmin 3vmin 4vmin;}
   h1{margin:.2rem 0 0; text-align:center; font-size:clamp(2rem,6vmin,4.2rem); color:var(--ink);}
 
   /* Generic grids / tokens */
@@ -68,7 +73,7 @@
   .flash-good{ background:var(--ok) !important; border-color:var(--ok) !important; }
   .flash-bad{ background:var(--bad) !important; border-color:var(--bad) !important; }
 
-  /* Game 3 – smaller big square */
+  /* Game 3 – big square */
   .bigSquare{
     width:min(70vmin,90%); aspect-ratio:1/1; background:#fff;
     border:12px solid var(--p2-main); border-radius:40px; display:grid; place-items:center;
@@ -99,16 +104,23 @@
          backface-visibility:hidden; display:grid; place-items:center; background:#fff;
          box-shadow:0 8px 20px rgba(0,0,0,.08); }
   .front{
-    /* P2 cover (remembered) */
     background:#fff url('https://i.postimg.cc/xCGJMcww/p2-card-back.png') center/70% no-repeat;
   }
   .back{ transform:rotateY(180deg); }
   .sndWord{ font-size:clamp(1.6rem,4.6vmin,2.4rem); padding:.3rem .6rem; }
 
-  /* Game 5 – sentence */
+  /* Prep “pill” */
+  .pill{
+    padding:.2rem .7rem; border-radius:16px; border:6px solid transparent; display:inline-grid; place-items:center;
+    min-width:8ch; font-size:clamp(1.6rem,4.2vw,2.4rem);
+  }
+  .pill-blue { background:var(--prep-blue); border-color:#86b8ef; }
+  .pill-green{ background:var(--prep-green); border-color:#75bb7a; color:#0b2b0f; }
+  .pill-red  { background:var(--prep-red);   border-color:#ff8e8e; }
+
+  /* Game 5/6 sentence visuals */
   .sentence{ display:flex; align-items:center; gap:min(2.2vmin,16px); flex-wrap:wrap; justify-content:center; font-size:clamp(2rem,4.8vw,3.2rem); }
   .wordSq{ padding:.2rem .6rem; min-height:3rem; border-radius:16px; border:6px solid var(--p2-main); background:#fff; cursor:pointer; }
-  .prepSq{ padding:.2rem .6rem; border-radius:16px; border:6px solid var(--p2-main); background:var(--p2-soft); cursor:pointer; }
   .inlineSq{
     display:inline-grid; place-items:center; width:min(36vmin,420px); aspect-ratio:1/1;
     border:10px solid var(--p2-main); border-radius:28px; background:#fff; cursor:pointer;
@@ -122,11 +134,19 @@
   .verbCircle img{ width:75%; height:75%; object-fit:contain; }
 
   /* Game 4 – Spelling (drag letters) */
-  .row{ display:flex; align-items:center; justify-content:center; gap:18px; margin-top:6px }
+  .row{ display:flex; align-items:center; justify-content:center; gap:16px; margin-top:6px }
   .toy-image{
     width:200px; height:200px; object-fit:contain; background:#fff; border-radius:18px;
     box-shadow:0 5px 15px rgba(0,0,0,.1); display:block;
   }
+
+  /* Round sound icon (used in Spill 4) */
+  .audio-img{
+    width:64px; height:64px; cursor:pointer; -webkit-user-drag:none; transition:transform .15s ease;
+    display:block;
+  }
+  .audio-img:active{ transform:scale(.96); }
+
   .answer-slots{
     width:100%; display:flex; flex-wrap:wrap; justify-content:center; gap:10px; min-height:60px; align-items:center; margin-top:8px;
   }
@@ -160,7 +180,6 @@
   .btns{ display:flex; gap:12px; justify-content:center; margin-top:4px }
   .btn.green{ background:var(--p2-main); color:#fff; border-color:var(--p2-dark) }
   .btn.red{ background:#ff6b6b; color:#fff; border-color:#c94f4f }
-
 </style>
 </head>
 <body>
@@ -196,7 +215,7 @@
   <div><button class="btn" id="sayPlay">Check (Toun)</button></div>
 </section>
 
-<!-- Spill 4: Schreif d'Wuert (nei) -->
+<!-- Spill 4: Schreif d'Wuert -->
 <section class="wrap hidden" id="g4">
   <h1>Schreif d'Wuert</h1>
 
@@ -207,7 +226,8 @@
 
   <div class="row">
     <img id="wImage" class="toy-image" alt="Spillsaach">
-    <button class="btn green" id="wPlay">🔊 Toun</button>
+    <!-- round speaker icon instead of green button -->
+    <img id="wPlayIcon" class="audio-img" src="https://i.postimg.cc/kXzQdjQp/temp-Imagef0iu-HC.avif" alt="Toun ofspillen" role="button" tabindex="0">
   </div>
 
   <div id="wAnswer" class="answer-slots"></div>
@@ -226,9 +246,19 @@
     <span class="wordSq" id="wEch">Ech</span>
     <div class="verbCircle" id="wSpillen"><img src="https://i.postimg.cc/vTzKPfgc/Spillen.png" alt="spillen"></div>
     <span class="wordSq" id="wGaar">gär</span>
-    <span class="prepSq" id="prepSq">mam</span>
+    <span class="pill" id="prepPill">mam</span>
     <div class="inlineSq" id="nounSq"><img id="nounImg" alt="" style="width:85%; height:85%; object-fit:contain"></div>
     <span>.</span>
+  </div>
+</section>
+
+<!-- Spill 6: Wielt déi richteg Präpositioun -->
+<section class="wrap hidden" id="g6">
+  <h1>Wielt déi richteg Präpositioun</h1>
+  <div class="sentence" style="gap:1.2rem">
+    <div class="inlineSq"><img id="g6Img" alt="" style="width:85%; height:85%; object-fit:contain"></div>
+    <span class="pill" id="g6Mam">mam</span>
+    <span class="pill pill-red" id="g6MatDer">mat der</span>
   </div>
 </section>
 
@@ -238,7 +268,7 @@
 /* ---------- DATA ---------- */
 const RAW = "https://raw.githubusercontent.com/albrechtclaire1007/p1spillsaachen/main";
 
-/* Core items (with swap rule for game 1) */
+/* Items */
 const ITEMS = [
   { id:'teddybier',  word:'en Teddybier',  img:'https://i.postimg.cc/XpDBC4jQ/1.png',  audio:`${RAW}/teddybier1.mp3` },
   { id:'fliger',     word:'e Fliger',      img:'https://i.postimg.cc/zHG3yP4s/2.png',  audio:`${RAW}/1fliger.mp3`,   correctId:'videospill' },
@@ -266,7 +296,7 @@ const SAZ = {
 /* ---------- UTIL ---------- */
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
 
-const pages = ["g1","g2","g3","g4","g5"];
+const pages = ["g1","g2","g3","g4","g5","g6"];
 let pageIdx = 0;
 const flowLabel = document.getElementById('flowLabel');
 const prevBtn = document.getElementById('prev');
@@ -286,9 +316,7 @@ function showPage(i){
 prevBtn.onclick = ()=> showPage(pageIdx-1);
 nextBtn.onclick = ()=> showPage(pageIdx+1);
 
-/* Small helper for subtle advance between games */
-function autoAdvance(delay=900){ setTimeout(()=> showPage(pageIdx+1), delay); }
-
+/* Helpers */
 const speaker = document.getElementById('speaker');
 async function playSound(src){ try{ if(speaker.src!==src) speaker.src=src; speaker.currentTime=0; await speaker.play(); }catch(e){} }
 function flash(el, ok){
@@ -297,8 +325,21 @@ function flash(el, ok){
   el.classList.add(ok ? 'flash-good' : 'flash-bad');
   setTimeout(()=> el.classList.remove('flash-good','flash-bad'), 260);
 }
+function needsMatDer(it){ return (it.id==='popp' || it.id==='trommel'); }
+function specialMamGreen(it){ return (it.id==='videospill' || it.id==='kaartespill'); }
+function setPillColour(el, it, explicit=null){
+  // explicit can be 'mam' or 'mat der'; otherwise infer from noun
+  const prep = explicit ?? (needsMatDer(it) ? 'mat der' : 'mam');
+  el.textContent = prep;
+  el.classList.remove('pill-blue','pill-green','pill-red');
+  if (prep==='mat der'){
+    el.classList.add('pill-red');
+  }else{
+    el.classList.add(specialMamGreen(it) ? 'pill-green' : 'pill-blue');
+  }
+}
 
-/* ---------- SPILL 1: Listen & click correct image (autoplay) ---------- */
+/* ---------- SPILL 1 ---------- */
 const grid1 = document.getElementById('grid1');
 const play1 = document.getElementById('play1');
 let bag1 = shuffle([...ITEMS]);
@@ -317,19 +358,19 @@ function layoutG1(){
   });
 }
 function nextG1(){
-  if(bag1.length===0){ autoAdvance(); return; }
+  if(bag1.length===0){ setTimeout(()=>showPage(1), 700); return; }
   target1 = bag1.pop();
-  playSound(target1.audio); // AUTOPLAY at each step
+  playSound(target1.audio);
 }
 function checkG1(it, el){
-  const correctId = target1.correctId || target1.id; // fliger <-> videospill swap
+  const correctId = target1.correctId || target1.id;
   const ok = (it.id === correctId);
   flash(el, ok);
   if(ok){ setTimeout(nextG1, 280); }
 }
 play1.onclick = ()=> { if(target1) playSound(target1.audio); };
 
-/* ---------- SPILL 2: Memory (image – sound, 7 pairs, P2 cover) ---------- */
+/* ---------- SPILL 2 ---------- */
 const memGrid = document.getElementById('memGrid');
 const memReset = document.getElementById('memReset');
 let lockMem = false; let firstPick = null; let solved = 0;
@@ -380,7 +421,7 @@ function flipMem(el, card){
       firstPick.style.pointerEvents = 'none';
       el.style.pointerEvents = 'none';
       solved += 1;
-      if(solved === MEM_ITEMS.length){ autoAdvance(700); }
+      if(solved === MEM_ITEMS.length){ setTimeout(()=>showPage(2), 700); }
     }else{
       firstPick.classList.remove('flipped');
       el.classList.remove('flipped');
@@ -390,7 +431,7 @@ function flipMem(el, card){
 }
 memReset.onclick = buildMemory;
 
-/* ---------- SPILL 3: Random big square (Check button plays audio) ---------- */
+/* ---------- SPILL 3 ---------- */
 const bigSq = document.getElementById('bigSq');
 const bigImg = document.getElementById('bigImg');
 const bigReset = document.getElementById('bigReset');
@@ -398,7 +439,7 @@ const sayPlay = document.getElementById('sayPlay');
 let bag3 = [];
 function refill3(){ bag3 = shuffle([...ITEMS]); }
 function next3(){
-  if(bag3.length===0){ autoAdvance(); return; }
+  if(bag3.length===0){ setTimeout(()=>showPage(3), 700); return; }
   const it = bag3.pop();
   bigImg.src = it.img; bigImg.alt = it.word;
   bigImg.classList.remove('fade'); void bigImg.offsetWidth; bigImg.classList.add('fade');
@@ -412,9 +453,9 @@ sayPlay.addEventListener('click', ()=>{
   if(it) playSound(it.audio);
 });
 
-/* ---------- SPILL 4: Spelling (drag letters) ---------- */
+/* ---------- SPILL 4 (Spelling) ---------- */
 const wImage   = document.getElementById('wImage');
-const wPlayBtn = document.getElementById('wPlay');
+const wPlayIcon= document.getElementById('wPlayIcon');
 const wAnswer  = document.getElementById('wAnswer');
 const wBank    = document.getElementById('wBank');
 const wProgress= document.getElementById('wProgress');
@@ -450,7 +491,7 @@ function wInitWord(){
     wAnswer.appendChild(slot);
   }
 
-  // bank (unique tiles)
+  // bank
   wBank.innerHTML='';
   shuffle([...W.current.word]).forEach((ch, i)=>{
     const t = document.createElement('div');
@@ -530,48 +571,76 @@ function wCheckAns(){
 function wNextWord(){
   W.idx++;
   if (W.idx >= W.list.length){
-    // Loop back or move on
-    autoAdvance(600);
+    setTimeout(()=>showPage(4), 600);
   }else{
     wInitWord();
   }
 }
-wPlayBtn.addEventListener('click', ()=>{ if(W.current) playSound(W.current.audio); });
+document.getElementById('wPlayIcon').addEventListener('click', ()=>{ if(W.current) playSound(W.current.audio); });
+document.getElementById('wPlayIcon').addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); document.getElementById('wPlayIcon').click(); }});
 wReset.addEventListener('click', wResetAll);
 wCheck.addEventListener('click', wCheckAns);
 wNext.addEventListener('click', wNextWord);
 
-/* ---------- SPILL 5: Sentences ---------- */
+/* ---------- SPILL 5 (Read the sentence) ---------- */
 const nounSq = document.getElementById('nounSq');
 const nounImg = document.getElementById('nounImg');
-const prepSq = document.getElementById('prepSq');
+const prepPill = document.getElementById('prepPill');
 const wEch = document.getElementById('wEch');
 const wSpillen = document.getElementById('wSpillen');
 const wGaar = document.getElementById('wGaar');
 
-let bag5 = []; let currentNoun = null;
+let bag5 = []; let current5 = null;
 function refill5(){ bag5 = shuffle([...ITEMS]); }
-function requiredPrepFor(it){ return (it.id==='popp' || it.id==='trommel') ? 'mat der' : 'mam'; }
-function setNoun(it){
-  currentNoun = it;
+function setSentenceItem(it){
+  current5 = it;
   nounImg.src = it.img; nounImg.alt = it.word;
   nounImg.classList.remove('fade'); void nounImg.offsetWidth; nounImg.classList.add('fade');
-  prepSq.textContent = requiredPrepFor(it);
+  setPillColour(prepPill, it); // colour & text based on rules
 }
-function nextNoun(){
-  if(bag5.length===0){
-    // end of game
-    return;
-  }
-  setNoun(bag5.pop());
+function nextSentence(){
+  if(bag5.length===0){ setTimeout(()=>showPage(5), 700); return; }
+  setSentenceItem(bag5.pop());
 }
-// each word plays its audio
+// word audio
 wEch.addEventListener('click', ()=> playSound(SAZ.ech));
 wSpillen.addEventListener('click', ()=> playSound(SAZ.spillen));
 wGaar.addEventListener('click', ()=> playSound(SAZ.gaar));
-prepSq.addEventListener('click', ()=> playSound(prepSq.textContent==='mat der' ? SAZ.matder : SAZ.mam));
-// image square = next
-nounSq.addEventListener('click', nextNoun);
+prepPill.addEventListener('click', ()=> playSound(prepPill.textContent==='mat der' ? SAZ.matder : SAZ.mam));
+nounSq.addEventListener('click', nextSentence);
+
+/* ---------- SPILL 6 (Choose correct prep) ---------- */
+const g6Img = document.getElementById('g6Img');
+const g6Mam = document.getElementById('g6Mam');
+const g6MatDer = document.getElementById('g6MatDer');
+let bag6 = [], current6 = null;
+
+function refill6(){ bag6 = shuffle([...ITEMS]); }
+function g6Set(it){
+  current6 = it;
+  g6Img.src = it.img; g6Img.alt = it.word;
+  g6Img.parentElement.classList.remove('fade'); void g6Img.parentElement.offsetWidth; g6Img.parentElement.classList.add('fade');
+
+  // style the "mam" option properly (blue default, green for special)
+  g6Mam.className = 'pill';
+  if (specialMamGreen(it)){ g6Mam.classList.add('pill-green'); }
+  else { g6Mam.classList.add('pill-blue'); }
+
+  // mat der is always red
+  g6MatDer.className = 'pill pill-red';
+}
+function g6Next(){
+  if(bag6.length===0){ return; }
+  g6Set(bag6.pop());
+}
+function g6Check(choice){
+  const needMatDer = needsMatDer(current6);
+  const ok = (choice==='mat der' ? needMatDer : !needMatDer);
+  flash(choice==='mat der' ? g6MatDer : g6Mam, ok);
+  setTimeout(g6Next, 350);
+}
+g6Mam.addEventListener('click', ()=> g6Check('mam'));
+g6MatDer.addEventListener('click', ()=> g6Check('mat der'));
 
 /* ---------- INIT ---------- */
 function init(){
@@ -580,19 +649,19 @@ function init(){
   // g2
   buildMemory();
   // g3
-  reset3();
-  // g4 (Spelling)
+  refill3(); next3();
+  // g4
   W.list = shuffle([...ITEMS]); W.idx=0; wInitWord();
   // g5
-  refill5(); nextNoun();
+  refill5(); nextSentence();
+  // g6
+  refill6(); g6Next();
 
-  // start
   showPage(0);
 }
 init();
 </script>
 </body>
 </html>
-
 
 
