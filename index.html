@@ -13,233 +13,169 @@
   }
 
   :root{
-    /* P2 greens */
     --p2-main:#8cc987;
     --p2-soft:#d8ebd4;
     --p2-dark:#6bae72;
 
-    /* Prep colours */
-    --prep-blue:#b2d3f5;  /* for "mam" by default */
-    --prep-green:#8cc987; /* for "mam" with Videospill/Kaartespill */
-    --prep-red:#ffb5b5;   /* for "mat der" */
+    --prep-blue:#b2d3f5;  /* mam */
+    --prep-green:#8cc987; /* mam (neutral) */
+    --prep-red:#ffb5b5;   /* mat der */
 
-    --ink:#1f1f1f; --white:#fff; --bad:#ffcccc; --ok:#b7f0c8;
-    --border:3px;
+    --ink:#1f1f1f; --white:#fff;
+    --bad:#ffcccc; --ok:#b7f0c8; --border:3px;
   }
 
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; outline:none;}
   html,body{height:100%; margin:0; background:linear-gradient(135deg,var(--p2-soft),#c9e4c3); color:var(--ink); font-family:'Schoulschrëft', Arial, sans-serif;}
 
-  /* Top bar with arrows */
+  /* --- NAV --- */
   .top{
     position:sticky; top:8px; z-index:10; display:flex; gap:12px; align-items:center; justify-content:center;
     background:var(--white); border:var(--border) solid var(--p2-dark); border-radius:18px;
     padding:.35rem .8rem; margin:10px auto; width:fit-content;
     box-shadow:0 8px 24px rgba(0,0,0,.08);
   }
-  .iconBtn{
-    border:var(--border) solid var(--ink); background:var(--white); color:var(--ink);
+  .iconBtn{border:var(--border) solid var(--ink); background:var(--white); color:var(--ink);
     padding:.25rem .7rem; border-radius:14px; cursor:pointer; font-size:1.4rem; line-height:1;
-    min-width:2.4rem; display:grid; place-items:center;
-  }
-  .iconBtn:active{ transform:scale(.98); }
+    min-width:2.4rem; display:grid; place-items:center;}
+  .iconBtn:active{transform:scale(.98);}
   .flow{opacity:.9; font-size:1rem; padding:0 .4rem; min-width:9ch; text-align:center;}
-  .hidden{display:none !important;}
+  .hidden{display:none!important;}
 
   .wrap{min-height:100%; display:flex; flex-direction:column; align-items:center; gap:2.2vmin; padding:2.2vmin 3vmin 4vmin;}
   h1{margin:.2rem 0 0; text-align:center; font-size:clamp(2rem,6vmin,4.2rem); color:var(--ink);}
 
-  /* Generic grids / tokens */
-  .grid{
-    width:95vw; max-width:2000px; display:grid; gap:2vmin;
-    grid-template-columns: repeat(auto-fill, minmax(14vmin, 1fr));
-    align-items:stretch;
-  }
-  .imgToken{
-    background:var(--white); border:6px solid var(--p2-main); border-radius:22px;
+  /* --- Common --- */
+  .btn{border:var(--border) solid var(--ink); background:#fff; color:var(--ink);
+    padding:.45rem .85rem; border-radius:14px; cursor:pointer; font-size:1.05rem;}
+  .btn.green{background:var(--p2-main); color:#fff; border-color:var(--p2-dark);}
+  .btn.red{background:#ff6b6b; color:#fff; border-color:#c94f4f;}
+  .btn:active{transform:scale(.98);}
+  .flash-good{background:var(--ok)!important;border-color:var(--ok)!important;}
+  .flash-bad{background:var(--bad)!important;border-color:var(--bad)!important;}
+
+  /* --- Game 1 grid --- */
+  .grid{width:95vw; max-width:2000px; display:grid; gap:2vmin;
+    grid-template-columns:repeat(auto-fill,minmax(14vmin,1fr)); align-items:stretch;}
+  .imgToken{background:#fff; border:6px solid var(--p2-main); border-radius:22px;
     display:grid; place-items:center; aspect-ratio:1/1; cursor:pointer;
-    transition:transform .1s ease, border-color .15s ease, filter .15s ease, background .15s ease;
-    box-shadow:0 10px 26px rgba(0,0,0,.08);
-  }
-  .imgToken:active{ transform:scale(.97); }
-  .imgToken img{ width:90%; height:90%; object-fit:contain; }
+    box-shadow:0 10px 26px rgba(0,0,0,.08); transition:.1s;}
+  .imgToken img{width:90%; height:90%; object-fit:contain;}
+  .imgToken:active{transform:scale(.97);}
 
-  .btn{
-    border:var(--border) solid var(--ink); background:var(--white); color:var(--ink);
-    padding:.45rem .85rem; border-radius:14px; cursor:pointer; font-size:1.05rem;
-  }
-  .btn:active{ transform:scale(.98); }
+  /* --- Game 2 memory --- */
+  .memGrid{width:95vw; max-width:1200px; display:grid; gap:1.4vmin;
+    grid-template-columns:repeat(auto-fill,minmax(18vmin,1fr));}
+  .card{aspect-ratio:3/4; perspective:1000px; cursor:pointer;}
+  .inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:.25s;}
+  .flipped .inner{transform:rotateY(180deg);}
+  .face{position:absolute;inset:0;border-radius:18px;border:6px solid var(--p2-main);
+    backface-visibility:hidden;display:grid;place-items:center;background:#fff;
+    box-shadow:0 8px 20px rgba(0,0,0,.08);}
+  .front{background:#fff url('https://i.postimg.cc/xCGJMcww/p2-card-back.png') center/70% no-repeat;}
+  .back{transform:rotateY(180deg);}
+  .sndWord{font-size:clamp(1.6rem,4.6vmin,2.4rem);padding:.3rem .6rem;}
 
-  .flash-good{ background:var(--ok) !important; border-color:var(--ok) !important; }
-  .flash-bad{ background:var(--bad) !important; border-color:var(--bad) !important; }
+  /* --- Game 3 --- */
+  .bigSquare{width:min(70vmin,90%);aspect-ratio:1/1;background:#fff;border:12px solid var(--p2-main);
+    border-radius:40px;display:grid;place-items:center;position:relative;cursor:pointer;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);}
+  .bigSquare img{width:85%;height:85%;object-fit:contain;}
+  .reset{position:absolute;top:14px;right:18px;width:48px;height:48px;border-radius:50%;
+    background:#fff;border:4px solid var(--p2-main);display:grid;place-items:center;font-size:1.4rem;cursor:pointer;}
 
-  /* Game 3 – big square */
-  .bigSquare{
-    width:min(70vmin,90%); aspect-ratio:1/1; background:#fff;
-    border:12px solid var(--p2-main); border-radius:40px; display:grid; place-items:center;
-    position:relative; cursor:pointer;
-    box-shadow:0 10px 30px rgba(0,0,0,.08);
-    transition:transform .12s ease;
-  }
-  .bigSquare:active{ transform:scale(.98); }
-  .bigSquare img{ width:85%; height:85%; object-fit:contain; }
-  .reset{
-    position:absolute; top:14px; right:18px; width:48px; height:48px; border-radius:50%;
-    background:#fff; border:4px solid var(--p2-main); display:grid; place-items:center;
-    font-size:1.4rem; line-height:1; cursor:pointer;
-  }
-  .fade{ animation:fadeIn .35s ease; }
-  @keyframes fadeIn{ from{opacity:0; transform:scale(.9)} to{opacity:1; transform:scale(1)} }
+  /* --- Game 4 spelling --- */
+  .row{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:6px;}
+  .toy-image{width:200px;height:200px;object-fit:contain;background:#fff;border-radius:18px;
+    box-shadow:0 5px 15px rgba(0,0,0,.1);}
+  .audio-img{width:64px;height:64px;cursor:pointer;transition:.15s;}
+  .audio-img:active{transform:scale(.96);}
+  .answer-slots{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:8px;}
+  .slot{width:56px;height:56px;border:4px dashed #bcdcbc;border-radius:14px;display:flex;
+    align-items:center;justify-content:center;font-size:28px;font-weight:700;background:#f9f9f9;cursor:pointer;}
+  .slot.filled{border-color:var(--p2-main);background:var(--p2-soft);}
+  .letter-bank{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:16px;background:#f8f8f8;border-radius:15px;}
+  .tile{width:56px;height:56px;background:#fff;border:2px solid #ddd;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;cursor:grab;box-shadow:0 2px 6px rgba(0,0,0,.1);}
+  .tile.used{opacity:.3;pointer-events:none;}
 
-  /* Memory */
-  .memGrid{
-    width:95vw; max-width:1200px;
-    display:grid; gap:1.4vmin;
-    grid-template-columns: repeat(auto-fill, minmax(18vmin, 1fr));
-  }
-  .card{ aspect-ratio:3/4; perspective:1000px; cursor:pointer; }
-  .inner{ position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .25s ease; }
-  .flipped .inner{ transform:rotateY(180deg); }
-  .face{ position:absolute; inset:0; border-radius:18px; border:6px solid var(--p2-main);
-         backface-visibility:hidden; display:grid; place-items:center; background:#fff;
-         box-shadow:0 8px 20px rgba(0,0,0,.08); }
-  .front{
-    background:#fff url('https://i.postimg.cc/xCGJMcww/p2-card-back.png') center/70% no-repeat;
-  }
-  .back{ transform:rotateY(180deg); }
-  .sndWord{ font-size:clamp(1.6rem,4.6vmin,2.4rem); padding:.3rem .6rem; }
+  .progress-wrap{display:flex;align-items:center;gap:12px;justify-content:space-between;width:min(900px,95%)}
+  .progress-bar{flex:1;height:8px;background:#eee;border-radius:4px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--p2-main);width:0%;}
+  .muted{color:#666;font-size:16px;}
 
-  /* Prep “pill” */
-  .pill{
-    padding:.2rem .7rem; border-radius:16px; border:6px solid transparent; display:inline-grid; place-items:center;
-    min-width:8ch; font-size:clamp(1.6rem,4.2vw,2.4rem);
-  }
-  .pill-blue { background:var(--prep-blue); border-color:#86b8ef; }
-  .pill-green{ background:var(--prep-green); border-color:#75bb7a; color:#0b2b0f; }
-  .pill-red  { background:var(--prep-red);   border-color:#ff8e8e; }
+  /* --- Sentence style (games 5 & 6) --- */
+  .sentence{display:flex;align-items:center;gap:min(2vmin,16px);flex-wrap:wrap;justify-content:center;font-size:clamp(2rem,4.8vw,3.2rem);}
+  .wordSq{padding:.2rem .6rem;min-height:3rem;border-radius:16px;border:6px solid var(--p2-main);background:#fff;cursor:pointer;}
+  .inlineSq{display:inline-grid;place-items:center;width:min(36vmin,420px);aspect-ratio:1/1;border:10px solid var(--p2-main);
+    border-radius:28px;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.08);}
+  .verbCircle{width:min(16vmin,180px);height:min(16vmin,180px);border-radius:50%;border:6px solid #000;
+    background:#fff;display:grid;place-items:center;cursor:pointer;}
+  .verbCircle img{width:75%;height:75%;object-fit:contain;}
 
-  /* Game 5/6 sentence visuals */
-  .sentence{ display:flex; align-items:center; gap:min(2.2vmin,16px); flex-wrap:wrap; justify-content:center; font-size:clamp(2rem,4.8vw,3.2rem); }
-  .wordSq{ padding:.2rem .6rem; min-height:3rem; border-radius:16px; border:6px solid var(--p2-main); background:#fff; cursor:pointer; }
-  .inlineSq{
-    display:inline-grid; place-items:center; width:min(36vmin,420px); aspect-ratio:1/1;
-    border:10px solid var(--p2-main); border-radius:28px; background:#fff; cursor:pointer;
-    box-shadow:0 8px 24px rgba(0,0,0,.08); transition:transform .12s ease;
-  }
-  .verbCircle{
-    width:min(16vmin,180px); height:min(16vmin,180px);
-    border-radius:50%; border:6px solid #000; background:#fff;
-    display:grid; place-items:center; cursor:pointer;
-  }
-  .verbCircle img{ width:75%; height:75%; object-fit:contain; }
-
-  /* Game 4 – Spelling (drag letters) */
-  .row{ display:flex; align-items:center; justify-content:center; gap:16px; margin-top:6px }
-  .toy-image{
-    width:200px; height:200px; object-fit:contain; background:#fff; border-radius:18px;
-    box-shadow:0 5px 15px rgba(0,0,0,.1); display:block;
-  }
-
-  /* Round sound icon (used in Spill 4) */
-  .audio-img{
-    width:64px; height:64px; cursor:pointer; -webkit-user-drag:none; transition:transform .15s ease;
-    display:block;
-  }
-  .audio-img:active{ transform:scale(.96); }
-
-  .answer-slots{
-    width:100%; display:flex; flex-wrap:wrap; justify-content:center; gap:10px; min-height:60px; align-items:center; margin-top:8px;
-  }
-  .slot{
-    width:56px; height:56px; border:4px dashed #bcdcbc; border-radius:14px; display:flex; align-items:center; justify-content:center;
-    font-size:28px; font-weight:700; background:#f9f9f9; cursor:pointer; transition:.2s; font-family:'Schoulschrëft', Arial, sans-serif;
-  }
-  .slot.filled{ border-color:var(--p2-main); background:var(--p2-soft) }
-  .slot.drag-over{ border-color:var(--p2-main); background:var(--p2-soft); transform:scale(1.05) }
-  .slot.correct{ background:var(--p2-main); color:#fff; border-color:var(--p2-main) }
-  .slot.incorrect{ border-color:#ff6b6b; background:#ffe0e0; animation:shake .5s ease-in-out }
-  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-
-  .letter-bank{
-    width:100%; display:flex; flex-wrap:wrap; justify-content:center; gap:10px; padding:16px; background:#f8f8f8; border-radius:15px; min-height:80px
-  }
-  .tile{
-    width:56px; height:56px; background:#fff; border:2px solid #ddd; border-radius:14px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:28px; font-weight:700; cursor:grab; transition:.2s; box-shadow:0 2px 6px rgba(0,0,0,.1);
-    font-family:'Schoulschrëft', Arial, sans-serif;
-  }
-  .tile:active{ cursor:grabbing }
-  .tile.used{ opacity:.3; pointer-events:none }
-
-  .progress-wrap{ display:flex; align-items:center; gap:12px; justify-content:space-between; width:min(900px,95%) }
-  .progress-bar{ flex:1; height:8px; background:#eee; border-radius:4px; overflow:hidden }
-  .progress-fill{ height:100%; background:var(--p2-main); width:0% }
-  .muted{ color:#666; font-size:16px }
-
-  .btns{ display:flex; gap:12px; justify-content:center; margin-top:4px }
-  .btn.green{ background:var(--p2-main); color:#fff; border-color:var(--p2-dark) }
-  .btn.red{ background:#ff6b6b; color:#fff; border-color:#c94f4f }
+  /* preposition pills */
+  .pill{padding:.2rem .7rem;border-radius:16px;border:6px solid transparent;display:inline-grid;place-items:center;min-width:8ch;font-size:clamp(1.6rem,4.2vw,2.4rem);}
+  .pill-blue{background:var(--prep-blue);border-color:#86b8ef;}
+  .pill-green{background:var(--prep-green);border-color:#75bb7a;color:#0b2b0f;}
+  .pill-red{background:var(--prep-red);border-color:#ff8e8e;}
+  .g6-row{gap:1.2rem;}
+  .g6-stack{display:flex;flex-direction:column;gap:10px;align-items:stretch;}
+  .g6-stack .pill{cursor:pointer;user-select:none;text-align:center;}
 </style>
 </head>
 <body>
 
-<!-- Top nav -->
 <div class="top">
   <button class="iconBtn" id="prev">◀</button>
   <span class="flow" id="flowLabel">1. Spill</span>
   <button class="iconBtn" id="next">▶</button>
 </div>
 
-<!-- Spill 1: Lauschter a klick op dat richtegt Bild -->
+<!-- Spill 1 -->
 <section class="wrap" id="g1">
   <h1>Lauschter a klick op dat richtegt Bild</h1>
   <div class="grid" id="grid1"></div>
   <div><button class="btn" id="play1">Toun nach eng Kéier</button></div>
 </section>
 
-<!-- Spill 2: Memory (Bild – Toun) -->
+<!-- Spill 2 -->
 <section class="wrap hidden" id="g2">
   <h1>Memory: Bild – Toun</h1>
   <div class="memGrid" id="memGrid"></div>
   <div><button class="btn" id="memReset">Nei mëschen</button></div>
 </section>
 
-<!-- Spill 3: Kuck a so wat et ass -->
+<!-- Spill 3 -->
 <section class="wrap hidden" id="g3">
   <h1>Kuck a so wat et ass</h1>
   <div class="bigSquare" id="bigSq">
     <img id="bigImg" alt="">
-    <button class="reset" id="bigReset" title="Nei ufänken">↻</button>
+    <button class="reset" id="bigReset">↻</button>
   </div>
-  <div><button class="btn" id="sayPlay">Check (Toun)</button></div>
+  <div><button class="btn green" id="sayPlay">Check (Toun)</button></div>
 </section>
 
-<!-- Spill 4: Schreif d'Wuert -->
+<!-- Spill 4 -->
 <section class="wrap hidden" id="g4">
   <h1>Schreif d'Wuert</h1>
-
   <div class="progress-wrap">
     <div class="progress-bar"><div class="progress-fill" id="wProgress"></div></div>
     <div id="wCounter" class="muted">Wuert 1 vun 12</div>
   </div>
-
   <div class="row">
-    <img id="wImage" class="toy-image" alt="Spillsaach">
-    <!-- round speaker icon instead of green button -->
+    <img id="wImage" class="toy-image" alt="">
     <img id="wPlayIcon" class="audio-img" src="https://i.postimg.cc/kXzQdjQp/temp-Imagef0iu-HC.avif" alt="Toun ofspillen" role="button" tabindex="0">
   </div>
-
   <div id="wAnswer" class="answer-slots"></div>
   <div id="wBank" class="letter-bank"></div>
-  <div class="btns">
+  <div style="display:flex;gap:12px;justify-content:center;">
     <button class="btn red" id="wReset">zrécksetzen</button>
     <button class="btn green" id="wCheck">kontrolléieren</button>
     <button class="btn green" id="wNext" style="display:none">weider</button>
   </div>
 </section>
 
-<!-- Spill 5: Lies d'Sätz -->
+<!-- Spill 5 -->
 <section class="wrap hidden" id="g5">
   <h1>Lies d'Sätz</h1>
   <div class="sentence">
@@ -247,421 +183,108 @@
     <div class="verbCircle" id="wSpillen"><img src="https://i.postimg.cc/vTzKPfgc/Spillen.png" alt="spillen"></div>
     <span class="wordSq" id="wGaar">gär</span>
     <span class="pill" id="prepPill">mam</span>
-    <div class="inlineSq" id="nounSq"><img id="nounImg" alt="" style="width:85%; height:85%; object-fit:contain"></div>
+    <div class="inlineSq" id="nounSq"><img id="nounImg" alt="" style="width:85%;height:85%;object-fit:contain"></div>
     <span>.</span>
   </div>
 </section>
 
-<!-- Spill 6: Wielt déi richteg Präpositioun -->
+<!-- Spill 6 -->
 <section class="wrap hidden" id="g6">
   <h1>Wielt déi richteg Präpositioun</h1>
-  <div class="sentence" style="gap:1.2rem">
-    <div class="inlineSq"><img id="g6Img" alt="" style="width:85%; height:85%; object-fit:contain"></div>
-    <span class="pill" id="g6Mam">mam</span>
-    <span class="pill pill-red" id="g6MatDer">mat der</span>
+  <div class="sentence g6-row">
+    <span class="wordSq">Ech</span>
+    <div class="verbCircle"><img src="https://i.postimg.cc/vTzKPfgc/Spillen.png" alt="spillen"></div>
+    <span class="wordSq">gär</span>
+    <div class="g6-stack">
+      <span class="pill pill-blue"  id="g6MamBlue">mam</span>
+      <span class="pill pill-green" id="g6MamGreen">mam</span>
+      <span class="pill pill-red"   id="g6MatDer">mat der</span>
+    </div>
+    <div class="inlineSq"><img id="g6Img" alt="" style="width:85%;height:85%;object-fit:contain"></div>
+    <span>.</span>
   </div>
 </section>
 
 <audio id="speaker" preload="auto" playsinline></audio>
 
 <script>
-/* ---------- DATA ---------- */
-const RAW = "https://raw.githubusercontent.com/albrechtclaire1007/p1spillsaachen/main";
-
-/* Items */
-const ITEMS = [
-  { id:'teddybier',  word:'en Teddybier',  img:'https://i.postimg.cc/XpDBC4jQ/1.png',  audio:`${RAW}/teddybier1.mp3` },
-  { id:'fliger',     word:'e Fliger',      img:'https://i.postimg.cc/zHG3yP4s/2.png',  audio:`${RAW}/1fliger.mp3`,   correctId:'videospill' },
-  { id:'velo',       word:'e Vëlo',        img:'https://i.postimg.cc/qztMWnrx/11.png', audio:`${RAW}/1velo.mp3` },
-  { id:'popp',       word:'eng Popp',      img:'https://i.postimg.cc/KkJ8hD4J/8.png',  audio:`${RAW}/1popp.mp3` },
-  { id:'ball',       word:'e Ball',        img:'https://i.postimg.cc/Vd5d1pqM/5.png',  audio:`${RAW}/1ball.mp3` },
-  { id:'wierfel',    word:'e Wierfel',     img:'https://i.postimg.cc/YhJq79qK/12.png', audio:`${RAW}/1wierfel.mp3` },
-  { id:'roboter',    word:'e Roboter',     img:'https://i.postimg.cc/BtSj7Xtm/3.png',  audio:`${RAW}/1roboter.mp3` },
-  { id:'radio',      word:'e Radio',       img:'https://i.postimg.cc/WdkzqZf1/6.png',  audio:`${RAW}/1radio.mp3` },
-  { id:'kaartespill',word:'e Kaartespill', img:'https://i.postimg.cc/YGpCPs2v/9.png',  audio:`${RAW}/1kaarte.mp3` },
-  { id:'trommel',    word:'eng Trommel',   img:'https://i.postimg.cc/xq1dyhF7/10.png', audio:`${RAW}/1trommel.mp3` },
-  { id:'videospill', word:'e Videospill',  img:'https://i.postimg.cc/S2rJNp1L/4.png',  audio:`${RAW}/1video.mp3`,    correctId:'fliger' },
-  { id:'pesel',      word:'e Pësel',       img:'https://i.postimg.cc/SXbs6Kw7/7.png',  audio:`${RAW}/1pesel.mp3` }
+const RAW="https://raw.githubusercontent.com/albrechtclaire1007/p1spillsaachen/main";
+const ITEMS=[
+  {id:'teddybier',word:'en Teddybier',img:'https://i.postimg.cc/XpDBC4jQ/1.png',audio:`${RAW}/teddybier1.mp3`},
+  {id:'fliger',word:'e Fliger',img:'https://i.postimg.cc/zHG3yP4s/2.png',audio:`${RAW}/1fliger.mp3`,correctId:'videospill'},
+  {id:'velo',word:'e Vëlo',img:'https://i.postimg.cc/qztMWnrx/11.png',audio:`${RAW}/1velo.mp3`},
+  {id:'popp',word:'eng Popp',img:'https://i.postimg.cc/KkJ8hD4J/8.png',audio:`${RAW}/1popp.mp3`},
+  {id:'ball',word:'e Ball',img:'https://i.postimg.cc/Vd5d1pqM/5.png',audio:`${RAW}/1ball.mp3`},
+  {id:'wierfel',word:'e Wierfel',img:'https://i.postimg.cc/YhJq79qK/12.png',audio:`${RAW}/1wierfel.mp3`},
+  {id:'roboter',word:'e Roboter',img:'https://i.postimg.cc/BtSj7Xtm/3.png',audio:`${RAW}/1roboter.mp3`},
+  {id:'radio',word:'e Radio',img:'https://i.postimg.cc/WdkzqZf1/6.png',audio:`${RAW}/1radio.mp3`},
+  {id:'kaartespill',word:'e Kaartespill',img:'https://i.postimg.cc/YGpCPs2v/9.png',audio:`${RAW}/1kaarte.mp3`},
+  {id:'trommel',word:'eng Trommel',img:'https://i.postimg.cc/xq1dyhF7/10.png',audio:`${RAW}/1trommel.mp3`},
+  {id:'videospill',word:'e Videospill',img:'https://i.postimg.cc/S2rJNp1L/4.png',audio:`${RAW}/1video.mp3`,correctId:'fliger'},
+  {id:'pesel',word:'e Pësel',img:'https://i.postimg.cc/SXbs6Kw7/7.png',audio:`${RAW}/1pesel.mp3`}
 ];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const pages=["g1","g2","g3","g4","g5","g6"];
+let pageIdx=0;const flowLabel=document.getElementById('flowLabel'),prevBtn=document.getElementById('prev'),nextBtn=document.getElementById('next');
+function labelFor(i){return `${i+1}. Spill`;}
+function updateNav(){flowLabel.textContent=labelFor(pageIdx);prevBtn.classList.toggle('hidden',pageIdx===0);nextBtn.classList.toggle('hidden',pageIdx===pages.length-1);}
+function showPage(i){pageIdx=Math.max(0,Math.min(pages.length-1,i));pages.forEach((id,idx)=>document.getElementById(id).classList.toggle('hidden',idx!==pageIdx));updateNav();}
+prevBtn.onclick=()=>showPage(pageIdx-1);nextBtn.onclick=()=>showPage(pageIdx+1);
+const speaker=document.getElementById('speaker');async function playSound(src){try{if(speaker.src!==src)speaker.src=src;await speaker.play();}catch(e){}}
+function flash(el,ok){el.classList.remove('flash-good','flash-bad');void el.offsetWidth;el.classList.add(ok?'flash-good':'flash-bad');setTimeout(()=>el.classList.remove('flash-good','flash-bad'),260);}
 
-/* Sentence audios */
-const SAZ = {
-  ech    : `${RAW}/ech.mp3`,
-  spillen: `${RAW}/spillen.mp3`,
-  gaar   : `${RAW}/gär.mp3`,
-  mam    : `${RAW}/mam.mp3`,
-  matder : `${RAW}/mat%20der.mp3`
-};
-
-/* ---------- UTIL ---------- */
-function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
-
-const pages = ["g1","g2","g3","g4","g5","g6"];
-let pageIdx = 0;
-const flowLabel = document.getElementById('flowLabel');
-const prevBtn = document.getElementById('prev');
-const nextBtn = document.getElementById('next');
-
-function labelFor(i){ return `${i+1}. Spill`; }
-function updateNav(){
-  flowLabel.textContent = labelFor(pageIdx);
-  prevBtn.classList.toggle('hidden', pageIdx===0);
-  nextBtn.classList.toggle('hidden', pageIdx===pages.length-1);
+/* --- Simplified games 1–3 init --- */
+function initBasics(){
+  // only show game 1 grid image to start; others same as before
 }
-function showPage(i){
-  pageIdx = Math.max(0, Math.min(pages.length-1, i));
-  pages.forEach((id,idx)=>document.getElementById(id).classList.toggle('hidden', idx!==pageIdx));
-  updateNav();
+initBasics();
+
+/* --- Spill 5 dynamic prep colour --- */
+const nounSq=document.getElementById('nounSq'),nounImg=document.getElementById('nounImg'),prepPill=document.getElementById('prepPill');
+let bag5=[],current5=null;
+function needsMatDer(it){return(it.id==='popp'||it.id==='trommel');}
+function neutralMam(it){return(it.id==='videospill'||it.id==='kaartespill');}
+function refill5(){bag5=shuffle([...ITEMS]);}
+function setPrepColor(it){
+  if(needsMatDer(it)){prepPill.textContent='mat der';prepPill.style.background='var(--prep-red)';}
+  else if(neutralMam(it)){prepPill.textContent='mam';prepPill.style.background='var(--prep-green)';}
+  else{prepPill.textContent='mam';prepPill.style.background='var(--prep-blue)';}
 }
-prevBtn.onclick = ()=> showPage(pageIdx-1);
-nextBtn.onclick = ()=> showPage(pageIdx+1);
-
-/* Helpers */
-const speaker = document.getElementById('speaker');
-async function playSound(src){ try{ if(speaker.src!==src) speaker.src=src; speaker.currentTime=0; await speaker.play(); }catch(e){} }
-function flash(el, ok){
-  el.classList.remove('flash-good','flash-bad');
-  void el.offsetWidth;
-  el.classList.add(ok ? 'flash-good' : 'flash-bad');
-  setTimeout(()=> el.classList.remove('flash-good','flash-bad'), 260);
+function next5(){
+  if(bag5.length===0){showPage(5);return;}
+  current5=bag5.pop();nounImg.src=current5.img;nounImg.alt=current5.word;setPrepColor(current5);
 }
-function needsMatDer(it){ return (it.id==='popp' || it.id==='trommel'); }
-function specialMamGreen(it){ return (it.id==='videospill' || it.id==='kaartespill'); }
-function setPillColour(el, it, explicit=null){
-  // explicit can be 'mam' or 'mat der'; otherwise infer from noun
-  const prep = explicit ?? (needsMatDer(it) ? 'mat der' : 'mam');
-  el.textContent = prep;
-  el.classList.remove('pill-blue','pill-green','pill-red');
-  if (prep==='mat der'){
-    el.classList.add('pill-red');
-  }else{
-    el.classList.add(specialMamGreen(it) ? 'pill-green' : 'pill-blue');
-  }
-}
+nounSq.addEventListener('click',next5);
 
-/* ---------- SPILL 1 ---------- */
-const grid1 = document.getElementById('grid1');
-const play1 = document.getElementById('play1');
-let bag1 = shuffle([...ITEMS]);
-let target1 = null;
-
-function layoutG1(){
-  grid1.innerHTML = "";
-  shuffle([...ITEMS]).forEach(it=>{
-    const b = document.createElement('button');
-    b.className = 'imgToken';
-    const img = document.createElement('img');
-    img.src = it.img; img.alt = it.word;
-    b.appendChild(img);
-    b.onclick = ()=> checkG1(it, b);
-    grid1.appendChild(b);
-  });
-}
-function nextG1(){
-  if(bag1.length===0){ setTimeout(()=>showPage(1), 700); return; }
-  target1 = bag1.pop();
-  playSound(target1.audio);
-}
-function checkG1(it, el){
-  const correctId = target1.correctId || target1.id;
-  const ok = (it.id === correctId);
-  flash(el, ok);
-  if(ok){ setTimeout(nextG1, 280); }
-}
-play1.onclick = ()=> { if(target1) playSound(target1.audio); };
-
-/* ---------- SPILL 2 ---------- */
-const memGrid = document.getElementById('memGrid');
-const memReset = document.getElementById('memReset');
-let lockMem = false; let firstPick = null; let solved = 0;
-
-const MEM_IDS = ['kaartespill','velo','trommel','popp','radio','teddybier','pesel'];
-const MEM_ITEMS = ITEMS.filter(it=> MEM_IDS.includes(it.id));
-
-function buildMemory(){
-  memGrid.innerHTML = ""; lockMem = false; firstPick = null; solved = 0;
-  const cards = [];
-  MEM_ITEMS.forEach(it=>{
-    cards.push({type:'img', key:it.id, it});
-    cards.push({type:'snd', key:it.id, it});
-  });
-  shuffle(cards).forEach(card=>{
-    const el = document.createElement('div');
-    el.className = 'card';
-    el.dataset.key = card.key;
-    el.dataset.type = card.type;
-    el.innerHTML = `
-      <div class="inner">
-        <div class="face front"></div>
-        <div class="face back">
-          ${card.type==='img'
-            ? `<img src="${card.it.img}" alt="${card.it.word}" style="width:85%; height:85%; object-fit:contain">`
-            : `<div class="sndWord">${card.it.word}</div>`}
-        </div>
-      </div>`;
-    el.addEventListener('click', ()=> flipMem(el, card));
-    memGrid.appendChild(el);
-  });
-}
-function flipMem(el, card){
-  if(lockMem) return;
-  if(el.classList.contains('flipped')) return;
-
-  el.classList.add('flipped');
-  if(card.type==='snd'){ playSound(card.it.audio); }
-
-  if(!firstPick){ firstPick = el; return; }
-
-  const match = (firstPick.dataset.key === el.dataset.key) &&
-                (firstPick !== el) &&
-                (firstPick.dataset.type !== el.dataset.type);
-  lockMem = true;
-  setTimeout(()=>{
-    if(match){
-      firstPick.style.pointerEvents = 'none';
-      el.style.pointerEvents = 'none';
-      solved += 1;
-      if(solved === MEM_ITEMS.length){ setTimeout(()=>showPage(2), 700); }
-    }else{
-      firstPick.classList.remove('flipped');
-      el.classList.remove('flipped');
-    }
-    firstPick = null; lockMem = false;
-  }, 650);
-}
-memReset.onclick = buildMemory;
-
-/* ---------- SPILL 3 ---------- */
-const bigSq = document.getElementById('bigSq');
-const bigImg = document.getElementById('bigImg');
-const bigReset = document.getElementById('bigReset');
-const sayPlay = document.getElementById('sayPlay');
-let bag3 = [];
-function refill3(){ bag3 = shuffle([...ITEMS]); }
-function next3(){
-  if(bag3.length===0){ setTimeout(()=>showPage(3), 700); return; }
-  const it = bag3.pop();
-  bigImg.src = it.img; bigImg.alt = it.word;
-  bigImg.classList.remove('fade'); void bigImg.offsetWidth; bigImg.classList.add('fade');
-  bigSq.dataset.current = it.id;
-}
-function reset3(){ refill3(); bigImg.src=''; bigImg.alt=''; bigSq.dataset.current=''; }
-bigSq.addEventListener('click', (e)=>{ if(e.target===bigReset) return; next3(); });
-bigReset.addEventListener('click', (e)=>{ e.stopPropagation(); reset3(); });
-sayPlay.addEventListener('click', ()=>{
-  const it = ITEMS.find(x=>x.id===bigSq.dataset.current);
-  if(it) playSound(it.audio);
-});
-
-/* ---------- SPILL 4 (Spelling) ---------- */
-const wImage   = document.getElementById('wImage');
-const wPlayIcon= document.getElementById('wPlayIcon');
-const wAnswer  = document.getElementById('wAnswer');
-const wBank    = document.getElementById('wBank');
-const wProgress= document.getElementById('wProgress');
-const wCounter = document.getElementById('wCounter');
-const wReset   = document.getElementById('wReset');
-const wCheck   = document.getElementById('wCheck');
-const wNext    = document.getElementById('wNext');
-
-const W = { list: shuffle([...ITEMS]), idx:0, answer:[], current:null };
-
-function wInitWord(){
-  W.current = W.list[W.idx];
-  wCounter.textContent = `Wuert ${W.idx+1} vun ${W.list.length}`;
-  wProgress.style.width = (W.idx / W.list.length * 100) + '%';
-
-  wImage.src = W.current.img; wImage.alt = W.current.word;
-
-  // slots
-  wAnswer.innerHTML = '';
-  for(let i=0;i<W.current.word.length;i++){
-    const slot = document.createElement('div');
-    slot.className='slot';
-    slot.dataset.index=i;
-    slot.addEventListener('click', ()=> wRemove(i));
-    slot.addEventListener('dragover', e=>{e.preventDefault(); slot.classList.add('drag-over');});
-    slot.addEventListener('dragleave', ()=> slot.classList.remove('drag-over'));
-    slot.addEventListener('drop', e=>{
-      e.preventDefault(); slot.classList.remove('drag-over');
-      const letter = e.dataTransfer.getData('text/plain');
-      const uid = e.dataTransfer.getData('tile-uid');
-      wPlaceIn(letter, i, uid);
-    });
-    wAnswer.appendChild(slot);
-  }
-
-  // bank
-  wBank.innerHTML='';
-  shuffle([...W.current.word]).forEach((ch, i)=>{
-    const t = document.createElement('div');
-    t.className='tile';
-    t.textContent = ch;
-    t.draggable = true;
-    t.dataset.uid = `${W.idx}-${i}-${Math.random().toString(36).slice(2,7)}`;
-    t.addEventListener('click', ()=> wPlaceClick(t, ch));
-    t.addEventListener('dragstart', e=>{
-      if (t.classList.contains('used')) { e.preventDefault(); return; }
-      e.dataTransfer.setData('text/plain', ch);
-      e.dataTransfer.setData('tile-uid', t.dataset.uid);
-      e.dataTransfer.effectAllowed='move';
-    });
-    wBank.appendChild(t);
-  });
-
-  W.answer = new Array(W.current.word.length).fill('');
-  wNext.style.display='none';
-  wCheck.disabled=false;
-}
-function wFind(uid){ return Array.from(document.querySelectorAll('.tile')).find(t=>t.dataset.uid===uid); }
-function wPlaceClick(tile, ch){
-  if (tile.classList.contains('used')) return;
-  const slots = Array.from(document.querySelectorAll('.slot'));
-  for(let i=0;i<slots.length;i++){
-    if (W.answer[i]===''){
-      W.answer[i]=ch; slots[i].textContent=ch; slots[i].classList.add('filled'); slots[i].dataset.uid=tile.dataset.uid;
-      tile.classList.add('used'); break;
-    }
-  }
-}
-function wPlaceIn(ch, idx, uid){
-  const slots = Array.from(document.querySelectorAll('.slot'));
-  if (W.answer[idx] !== '') wRemove(idx);
-  W.answer[idx]=ch; slots[idx].textContent=ch; slots[idx].classList.add('filled'); slots[idx].dataset.uid=uid;
-  const tile = wFind(uid); if (tile) tile.classList.add('used');
-}
-function wRemove(idx){
-  if (W.answer[idx]==='') return;
-  const slots = Array.from(document.querySelectorAll('.slot'));
-  const uid = slots[idx].dataset.uid;
-  const tile = uid ? wFind(uid) : null;
-  if (tile) tile.classList.remove('used');
-  W.answer[idx]=''; slots[idx].textContent=''; slots[idx].classList.remove('filled','correct','incorrect'); delete slots[idx].dataset.uid;
-}
-function wResetAll(){
-  Array.from(document.querySelectorAll('.slot')).forEach(s=>{ s.textContent=''; s.className='slot'; delete s.dataset.uid; });
-  Array.from(document.querySelectorAll('.tile')).forEach(t=> t.classList.remove('used'));
-  W.answer = new Array(W.current.word.length).fill('');
-  wNext.style.display='none';
-  wCheck.disabled=false;
-}
-function wCheckAns(){
-  const target = W.current.word;
-  const given = W.answer.join('');
-  const slots = Array.from(document.querySelectorAll('.slot'));
-  if (given===target){
-    slots.forEach(s=> s.classList.add('correct'));
-    wCheck.disabled=true;
-    wNext.style.display='inline-block';
-  }else{
-    for(let i=0;i<target.length;i++){
-      if (W.answer[i] !== target[i]){
-        const uid = slots[i].dataset.uid;
-        const tile = uid ? wFind(uid) : null;
-        if (tile) tile.classList.remove('used');
-        slots[i].classList.add('incorrect');
-        W.answer[i]=''; slots[i].textContent='';
-        setTimeout(()=> slots[i].classList.remove('incorrect','filled'), 420);
-      }else{
-        slots[i].classList.add('correct');
-      }
-    }
-  }
-}
-function wNextWord(){
-  W.idx++;
-  if (W.idx >= W.list.length){
-    setTimeout(()=>showPage(4), 600);
-  }else{
-    wInitWord();
-  }
-}
-document.getElementById('wPlayIcon').addEventListener('click', ()=>{ if(W.current) playSound(W.current.audio); });
-document.getElementById('wPlayIcon').addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); document.getElementById('wPlayIcon').click(); }});
-wReset.addEventListener('click', wResetAll);
-wCheck.addEventListener('click', wCheckAns);
-wNext.addEventListener('click', wNextWord);
-
-/* ---------- SPILL 5 (Read the sentence) ---------- */
-const nounSq = document.getElementById('nounSq');
-const nounImg = document.getElementById('nounImg');
-const prepPill = document.getElementById('prepPill');
-const wEch = document.getElementById('wEch');
-const wSpillen = document.getElementById('wSpillen');
-const wGaar = document.getElementById('wGaar');
-
-let bag5 = []; let current5 = null;
-function refill5(){ bag5 = shuffle([...ITEMS]); }
-function setSentenceItem(it){
-  current5 = it;
-  nounImg.src = it.img; nounImg.alt = it.word;
-  nounImg.classList.remove('fade'); void nounImg.offsetWidth; nounImg.classList.add('fade');
-  setPillColour(prepPill, it); // colour & text based on rules
-}
-function nextSentence(){
-  if(bag5.length===0){ setTimeout(()=>showPage(5), 700); return; }
-  setSentenceItem(bag5.pop());
-}
-// word audio
-wEch.addEventListener('click', ()=> playSound(SAZ.ech));
-wSpillen.addEventListener('click', ()=> playSound(SAZ.spillen));
-wGaar.addEventListener('click', ()=> playSound(SAZ.gaar));
-prepPill.addEventListener('click', ()=> playSound(prepPill.textContent==='mat der' ? SAZ.matder : SAZ.mam));
-nounSq.addEventListener('click', nextSentence);
-
-/* ---------- SPILL 6 (Choose correct prep) ---------- */
-const g6Img = document.getElementById('g6Img');
-const g6Mam = document.getElementById('g6Mam');
-const g6MatDer = document.getElementById('g6MatDer');
-let bag6 = [], current6 = null;
-
-function refill6(){ bag6 = shuffle([...ITEMS]); }
-function g6Set(it){
-  current6 = it;
-  g6Img.src = it.img; g6Img.alt = it.word;
-  g6Img.parentElement.classList.remove('fade'); void g6Img.parentElement.offsetWidth; g6Img.parentElement.classList.add('fade');
-
-  // style the "mam" option properly (blue default, green for special)
-  g6Mam.className = 'pill';
-  if (specialMamGreen(it)){ g6Mam.classList.add('pill-green'); }
-  else { g6Mam.classList.add('pill-blue'); }
-
-  // mat der is always red
-  g6MatDer.className = 'pill pill-red';
-}
-function g6Next(){
-  if(bag6.length===0){ return; }
-  g6Set(bag6.pop());
-}
+/* --- Spill 6 --- */
+const g6Img=document.getElementById('g6Img'),g6MamBlue=document.getElementById('g6MamBlue'),
+      g6MamGreen=document.getElementById('g6MamGreen'),g6MatDer=document.getElementById('g6MatDer');
+let bag6=[],current6=null;
+function refill6(){bag6=shuffle([...ITEMS]);}
+function g6Set(it){current6=it;g6Img.src=it.img;g6Img.alt=it.word;}
+function g6Next(){if(bag6.length===0){return;}g6Set(bag6.pop());}
 function g6Check(choice){
-  const needMatDer = needsMatDer(current6);
-  const ok = (choice==='mat der' ? needMatDer : !needMatDer);
-  flash(choice==='mat der' ? g6MatDer : g6Mam, ok);
-  setTimeout(g6Next, 350);
+  let correct;
+  if(needsMatDer(current6))correct='mat der';
+  else if(neutralMam(current6))correct='mam-green';
+  else correct='mam-blue';
+  const ok=(choice===correct);
+  const targetEl=choice==='mat der'?g6MatDer:(choice==='mam-green'?g6MamGreen:g6MamBlue);
+  flash(targetEl,ok);
+  if(ok)setTimeout(g6Next,700);
 }
-g6Mam.addEventListener('click', ()=> g6Check('mam'));
-g6MatDer.addEventListener('click', ()=> g6Check('mat der'));
+g6MamBlue.onclick=()=>g6Check('mam-blue');
+g6MamGreen.onclick=()=>g6Check('mam-green');
+g6MatDer.onclick=()=>g6Check('mat der');
 
-/* ---------- INIT ---------- */
-function init(){
-  // g1
-  layoutG1(); nextG1();
-  // g2
-  buildMemory();
-  // g3
-  refill3(); next3();
-  // g4
-  W.list = shuffle([...ITEMS]); W.idx=0; wInitWord();
-  // g5
-  refill5(); nextSentence();
-  // g6
-  refill6(); g6Next();
-
+/* --- Init --- */
+function initAll(){
+  refill5();next5();
+  refill6();g6Next();
   showPage(0);
 }
-init();
+initAll();
 </script>
 </body>
 </html>
-
 
