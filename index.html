@@ -3,371 +3,591 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Schreif d'Wuert – Spillsaachen</title>
+  <title>P2 – Spillsaachen: Schreif · Lauschter · Memo</title>
   <style>
-    @font-face {
-      font-family: 'Schoulschreft';
-      src: url('https://github.com/albrechtclaire1007/schoulschreft/raw/main/schoulschreft_bold%5B2%5D.TTF') format('truetype');
-      font-weight: bold;
+    /* ---- Schoulschreft (bold) ---- */
+    @font-face{
+      font-family:'Schoulschreft';
+      src:url('https://raw.githubusercontent.com/albrechtclaire1007/schoulschreft/main/schoulschreft_bold%5B2%5D.TTF') format('truetype');
+      font-weight:700;
+      font-style:normal;
+      font-display:swap;
     }
 
+    :root{
+      --p2-soft:#d8ebd4;  /* light P2 green */
+      --p2-main:#8cc987;  /* main P2 green */
+      --ok:#4CAF50;
+      --bad:#ff6b6b;
+      --card:#fff;
+      --muted:#666;
+    }
+
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
     body{
-      box-sizing:border-box;margin:0;padding:20px;
-      font-family:'Schoulschreft',Arial,sans-serif;
-      background:linear-gradient(135deg,#d8ebd4 0%,#8cc987 100%);
-      min-height:100vh;display:flex;flex-direction:column;align-items:center;user-select:none;
+      margin:0; padding:20px;
+      background:linear-gradient(135deg,var(--p2-soft) 0%,var(--p2-main) 100%);
+      font-family:'Schoulschreft', Arial, sans-serif;
+      display:flex; align-items:center; justify-content:center;
+      user-select:none;
     }
 
-    .game-container{
-      width:100%;max-width:900px;background:#fff;border-radius:20px;padding:30px;
-      box-shadow:0 10px 30px rgba(0,0,0,.1);display:flex;flex-direction:column;align-items:center;gap:24px;min-height:70vh;position:relative;
+    .outer{
+      width:min(1000px,100%);
+      background:#fff; border-radius:22px; box-shadow:0 10px 30px rgba(0,0,0,.12);
+      padding:22px; display:flex; flex-direction:column; gap:16px;
+      min-height:clamp(620px, 85vh, 980px);
     }
 
-    .progress-bar{width:100%;height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden}
-    .progress-fill{height:100%;background:#8cc987;border-radius:4px;transition:width .3s ease}
-    .word-counter{font-size:16px;color:#666}
+    h1,h2,h3{ margin:0; text-align:center }
+    h1{ font-size:28px }
+    h2{ font-size:22px; color:#111 }
 
-    /* --- IMAGE + AUDIO ROW --- */
-    .image-section{
-      width:100%;
-      display:flex;
-      align-items:center;           /* vertical alignment in the middle of the image */
-      justify-content:center;
-      gap:18px;                     /* space between audio icon and image */
-      margin-top:6px;
+    .nav{
+      display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
     }
+    .tab{
+      border:none; border-radius:999px; padding:10px 16px; font-size:16px; font-weight:700;
+      background:#f0f4f0; cursor:pointer; transition:.2s;
+    }
+    .tab.active{ background:var(--p2-main); color:#fff }
+    .section{ display:none }
+    .section.active{ display:block }
+
+    .progress-wrap{ display:flex; align-items:center; gap:12px; justify-content:space-between }
+    .progress-bar{ flex:1; height:8px; background:#eee; border-radius:4px; overflow:hidden }
+    .progress-fill{ height:100%; background:var(--p2-main); width:0% }
+
+    .row{ display:flex; align-items:center; justify-content:center; gap:18px; margin-top:6px }
     .audio-img{
-      width:64px;height:64px;cursor:pointer;
-      -webkit-user-drag:none;user-select:none;
-      transition:transform .15s ease;
-      flex:0 0 auto;
+      width:72px; height:72px; cursor:pointer; -webkit-user-drag:none; transition:transform .15s ease; flex:0 0 auto;
     }
-    .audio-img:active{ transform:scale(0.95); }
-    .audio-img[aria-disabled="true"]{opacity:.5;pointer-events:none}
+    .audio-img:active{ transform:scale(.96) }
+    .audio-img[aria-disabled="true"]{ opacity:.5; pointer-events:none }
 
     .toy-image{
-      width:200px;height:200px;object-fit:contain;background:#fff;border-radius:15px;
-      box-shadow:0 5px 15px rgba(0,0,0,.1);display:block;flex:0 0 auto;
+      width:200px; height:200px; object-fit:contain; background:#fff; border-radius:15px;
+      box-shadow:0 5px 15px rgba(0,0,0,.1); display:block;
     }
 
-    /* --- ANSWER + LETTERS --- */
     .answer-slots{
-      width:100%;
-      display:flex;flex-wrap:wrap;justify-content:center;gap:8px;min-height:60px;align-items:center
+      width:100%; display:flex; flex-wrap:wrap; justify-content:center; gap:8px; min-height:60px; align-items:center;
     }
     .slot{
-      width:50px;height:50px;border:3px dashed #ccc;border-radius:10px;display:flex;align-items:center;justify-content:center;
-      font-size:24px;font-weight:bold;background:#f9f9f9;transition:all .2s ease;cursor:pointer
+      width:50px; height:50px; border:3px dashed #ccc; border-radius:12px; display:flex; align-items:center; justify-content:center;
+      font-size:26px; font-weight:700; background:#f9f9f9; cursor:pointer; transition:.2s; font-family:'Schoulschreft', Arial, sans-serif;
     }
-    .slot.filled{border:3px solid #8cc987;background:#d8ebd4;color:#000}
-    .slot.drag-over{border-color:#8cc987;background:#d8ebd4;transform:scale(1.05)}
-    .slot.correct{border-color:#8cc987;background:#8cc987;color:#fff}
-    .slot.incorrect{border-color:#ff6b6b;background:#ffe0e0;animation:shake .5s ease-in-out}
+    .slot.filled{ border-color:var(--p2-main); background:var(--p2-soft) }
+    .slot.drag-over{ border-color:var(--p2-main); background:var(--p2-soft); transform:scale(1.05) }
+    .slot.correct{ background:var(--p2-main); color:#fff; border-color:var(--p2-main) }
+    .slot.incorrect{ border-color:var(--bad); background:#ffe0e0; animation:shake .5s ease-in-out }
 
     @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 
     .letter-bank{
-      width:100%;
-      display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:16px;background:#f8f8f8;border-radius:15px;min-height:80px
+      width:100%; display:flex; flex-wrap:wrap; justify-content:center; gap:10px; padding:16px; background:#f8f8f8; border-radius:15px; min-height:80px
     }
-    .letter-tile{
-      width:50px;height:50px;background:#fff;border:2px solid #ddd;border-radius:10px;display:flex;align-items:center;justify-content:center;
-      font-size:24px;font-weight:bold;cursor:grab;transition:all .2s ease;box-shadow:0 2px 5px rgba(0,0,0,.1);user-select:none
+    .tile{
+      width:50px; height:50px; background:var(--card); border:2px solid #ddd; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:26px; font-weight:700; cursor:grab; transition:.2s; box-shadow:0 2px 5px rgba(0,0,0,.1);
+      font-family:'Schoulschreft', Arial, sans-serif;
     }
-    .letter-tile:active{cursor:grabbing}
-    .letter-tile.used{opacity:.3;pointer-events:none}
+    .tile:active{ cursor:grabbing }
+    .tile.used{ opacity:.3; pointer-events:none }
 
-    .feedback{font-size:24px;font-weight:bold;min-height:30px;text-align:center}
-    .success{color:#4CAF50;animation:bounce .6s ease-in-out}
-    @keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+    .btns{ display:flex; gap:12px; justify-content:center; margin-top:4px }
+    .btn{
+      border:none; border-radius:999px; padding:12px 22px; font-size:16px; font-weight:700; cursor:pointer; transition:.2s;
+      font-family:'Schoulschreft', Arial, sans-serif;
+    }
+    .btn.check{ background:var(--p2-main); color:#fff }
+    .btn.check:hover{ filter:brightness(.95) }
+    .btn.reset{ background:var(--bad); color:#fff }
+    .btn.next{ background:var(--ok); color:#fff }
 
-    .button-group{display:flex;gap:15px}
-    .game-button{padding:12px 24px;border:none;border-radius:25px;font-size:16px;font-family:'Schoulschreft',Arial,sans-serif;cursor:pointer;transition:all .2s ease;font-weight:bold}
-    .check-button{background:#8cc987;color:#fff}
-    .check-button:hover{background:#7ab87a}
-    .check-button:disabled{background:#ccc;cursor:not-allowed}
-    .reset-button{background:#ff6b6b;color:#fff}
-    .reset-button:hover{background:#ff5252}
-    .next-button{background:#4CAF50;color:#fff}
-    .next-button:hover{background:#45a049}
+    .feedback{ font-size:22px; font-weight:700; min-height:28px; text-align:center }
+    .success{ color:var(--ok); animation:bounce .6s ease-in-out }
+    @keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 
-    .final-screen{text-align:center;padding:40px 20px}
-    .final-screen h1{color:#8cc987;font-size:32px;margin-bottom:20px}
-    .final-score{font-size:24px;color:#666;margin-bottom:30px}
+    /* Listen & Click grid */
+    .grid{
+      width:100%; display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:16px; align-items:stretch; margin-top:8px;
+    }
+    .card{
+      background:#fff; border-radius:15px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,.1); transition:.25s; cursor:pointer;
+    }
+    .card img{ width:100%; height:120px; object-fit:contain; background:#f8f8f8; display:block }
+    .card.flash{ border:4px solid var(--p2-main); background:var(--p2-soft) }
+    .card.wrong{ border:4px solid var(--bad); background:#ffe0e0; animation:shake .4s ease }
 
-    @media (max-width:480px){
-      .toy-image{width:150px;height:150px}
-      .slot,.letter-tile{width:45px;height:45px;font-size:20px}
-      .audio-img{width:56px;height:56px;}
+    /* Memo game */
+    .memo-grid{
+      width:100%; display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:14px; margin-top:8px;
+    }
+    .memo-card{
+      position:relative; height:140px; border-radius:16px; background:#fafafa; box-shadow:0 4px 10px rgba(0,0,0,.08); cursor:pointer; overflow:hidden;
+      display:flex; align-items:center; justify-content:center; transition:.2s;
+    }
+    .memo-card img{ width:100%; height:100%; object-fit:contain; background:#f3f3f3 }
+    .memo-face{
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:20px; background:#e9f4ea; color:#0b0b0b;
+    }
+    .memo-hidden{ display:none }
+    .memo-correct{ outline:4px solid var(--p2-main) }
+    .memo-wrong{ outline:4px solid var(--bad); animation:shake .35s ease }
+    .memo-speaker{ width:58px; height:58px; }
+
+    .finish{
+      text-align:center; padding:34px 12px;
+    }
+    .finish h2{ color:var(--p2-main); font-size:28px; margin-bottom:6px }
+
+    @media (max-width:520px){
+      .toy-image{ width:150px; height:150px }
+      .slot,.tile{ width:46px; height:46px; font-size:22px }
+      .audio-img{ width:64px; height:64px }
+      .memo-card{ height:120px }
     }
   </style>
 </head>
 <body>
-  <div class="game-container">
-    <div style="width:100%">
-      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="word-counter" id="wordCounter">Wuert 1 vun 12</div>
+  <div class="outer">
+    <h1>Spillsaachen – Schreif · Lauschter · Memo</h1>
+
+    <!-- Top nav -->
+    <div class="nav">
+      <button class="tab active" data-target="#writeGame">1) Schreif d’Wuert</button>
+      <button class="tab" data-target="#listenGame">2) Lauschter a klick</button>
+      <button class="tab" data-target="#memoGame">3) Memo (Audio ↔ Bild)</button>
     </div>
 
-    <!-- AUDIO (left) + IMAGE (right), middle aligned -->
-    <div class="image-section">
-      <img id="audioImg" class="audio-img"
-           src="https://i.postimg.cc/kXzQdjQp/temp-Imagef0iu-HC.avif"
-           alt="Toun nei ofspillen" role="button" tabindex="0">
-      <img class="toy-image" id="toyImage" alt="Spillsaach">
-    </div>
+    <!-- =========================
+         DATA (shared)
+    ========================== -->
+    <script>
+      window.TOYS = [
+        { name:'Kaartespill', image:'https://i.postimg.cc/VSxkQyb8/temp-Image2t-Ew-Ew.avif', audio:'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1kaarte.mp3' },
+        { name:'Popp',        image:'https://i.postimg.cc/7CFZ8vTw/temp-Imagee-DSUs6.avif',    audio:'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1popp.mp3' },
+        { name:'Pësel',       image:'https://i.postimg.cc/XB3NqwL4/temp-Image-Jgec-Ta.avif',   audio:'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1pesel.mp3' },
+        { name:'Trommel',     image:'https://i.postimg.cc/p9wLbNnb/temp-Image-MIU98-V.avif',   audio:'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1trommel.mp3' },
+        { name:'Fliger',      image:'https://i.postimg.cc/DW9wkVb3/temp-Image-NAjh-GW.avif',   audio:'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1fliger.mp3' },
+        { name:'Teddybier',   image:'https://i.postimg.cc/dkGtJW8B/temp-Imagep2-X0pu.avif',    audio:'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/teddybier1.mp3' },
+        { name:'Videospill',  image:'https://i.postimg.cc/tZFC9rhF/temp-Image-PC26-QV.avif',   audio:'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1video.mp3' },
+        { name:'Ball',        image:'https://i.postimg.cc/G8vhbMkx/temp-Image-SMSSD4.avif',    audio:'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1ball.mp3' },
+        { name:'Vëlo',        image:'https://i.postimg.cc/Q9cxj6pq/temp-Imagev-ZAm8p.avif',    audio:'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1velo.mp3' },
+        { name:'Radio',       image:'https://i.postimg.cc/xNYj8K5f/temp-Image-W250-J5.avif',   audio:'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1radio.mp3' },
+        { name:'Roboter',     image:'https://i.postimg.cc/vxM8TWhR/temp-Image-Xr-Gmf-G.avif',  audio:'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1roboter.mp3' },
+        { name:'Wierfel',     image:'https://i.postimg.cc/vxM8TWhy/temp-Image-Zp-G0-TR.avif',  audio:'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1wierfel.mp3' }
+      ];
+    </script>
 
-    <div class="answer-slots" id="answerSlots"></div>
-    <div class="letter-bank" id="letterBank"></div>
-    <div class="feedback" id="feedback"></div>
+    <!-- =========================
+         GAME 1: SCHREIF D'WUERT
+    ========================== -->
+    <section class="section active" id="writeGame">
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="wProgress"></div></div>
+        <div id="wCounter" class="muted">Wuert 1 vun 12</div>
+      </div>
 
-    <div class="button-group">
-      <button class="game-button reset-button" id="resetButton">zrécksetzen</button>
-      <button class="game-button check-button" id="checkButton">kontrolléieren</button>
-      <button class="game-button next-button" id="nextButton" style="display:none">weider</button>
-    </div>
+      <div class="row">
+        <img id="wAudioImg" class="audio-img" src="https://i.postimg.cc/kXzQdjQp/temp-Imagef0iu-HC.avif" alt="Toun nei ofspillen" role="button" tabindex="0">
+        <img id="wImage" class="toy-image" alt="Spillsaach">
+      </div>
+
+      <div id="wAnswer" class="answer-slots"></div>
+      <div id="wBank" class="letter-bank"></div>
+      <div id="wFeedback" class="feedback"></div>
+
+      <div class="btns">
+        <button class="btn reset" id="wReset">zrécksetzen</button>
+        <button class="btn check" id="wCheck">kontrolléieren</button>
+        <button class="btn next" id="wNext" style="display:none">weider</button>
+      </div>
+    </section>
+
+    <!-- =========================
+         GAME 2: LAUSCHTER & KLICK
+    ========================== -->
+    <section class="section" id="listenGame">
+      <h2>Lauschter a klick op déi richteg Spillsaach!</h2>
+
+      <div class="row" style="margin-top:10px">
+        <img id="lAudioImg" class="audio-img" src="https://i.postimg.cc/kXzQdjQp/temp-Imagef0iu-HC.avif" alt="Toun nei ofspillen" role="button" tabindex="0">
+      </div>
+
+      <div id="lFeedback" class="feedback">Klick op de Lautsprecher</div>
+      <div id="lGrid" class="grid"></div>
+    </section>
+
+    <!-- =========================
+         GAME 3: MEMO (AUDIO ↔ BILD)
+    ========================== -->
+    <section class="section" id="memoGame">
+      <h2>Memo: fënn d’Paaren (Toun ↔ Bild)</h2>
+      <div id="mFeedback" class="feedback">Klick op eng Kaart fir unzefänken.</div>
+      <div id="mGrid" class="memo-grid"></div>
+    </section>
+
   </div>
 
-  <audio id="audio" preload="auto" playsinline></audio>
+  <!-- Shared audio -->
+  <audio id="sharedAudio" preload="auto" playsinline></audio>
 
   <script>
-    // --- AUDIO UNLOCK + REPLAY ---
-    const audioEl = document.getElementById('audio');
-    const audioImg = document.getElementById('audioImg');
-    let audioReady = false;
-
-    function unlockAudio() {
-      if (audioReady) return;
-      audioEl.muted = true;
-      audioEl.play().then(() => {
-        audioEl.pause(); audioEl.currentTime = 0; audioEl.muted = false;
-        audioReady = true;
-      }).catch(()=>{ /* will still play on gesture-tied calls */ });
-    }
-    window.addEventListener('load', unlockAudio);
-    ['pointerdown','click','touchstart','keydown','focus'].forEach(evt =>
-      document.addEventListener(evt, unlockAudio, {passive:true})
-    );
-
-    function replayAudio() {
-      if (!current) return;
-      audioEl.currentTime = 0;
-      audioEl.play().catch(()=>{});
-      audioImg.style.transform = 'scale(0.95)';
-      setTimeout(()=> audioImg.style.transform = 'scale(1)', 140);
-    }
-    audioImg.addEventListener('click', replayAudio);
-    audioImg.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); replayAudio(); }
-    });
-
-    // --- DATA ---
-    const fixedPairs = [
-      { word: 'Kaartespill', image: 'https://i.postimg.cc/VSxkQyb8/temp-Image2t-Ew-Ew.avif', audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1kaarte.mp3' },
-      { word: 'Popp',        image: 'https://i.postimg.cc/7CFZ8vTw/temp-Imagee-DSUs6.avif',    audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1popp.mp3' },
-      { word: 'Péssel',      image: 'https://i.postimg.cc/XB3NqwL4/temp-Image-Jgec-Ta.avif',   audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1pesel.mp3' },
-      { word: 'Trommel',     image: 'https://i.postimg.cc/p9wLbNnb/temp-Image-MIU98-V.avif',   audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1trommel.mp3' },
-      { word: 'Fliger',      image: 'https://i.postimg.cc/DW9wkVb3/temp-Image-NAjh-GW.avif',   audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1fliger.mp3' },
-      { word: 'Teddybier',   image: 'https://i.postimg.cc/dkGtJW8B/temp-Imagep2-X0pu.avif',    audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/teddybier1.mp3' },
-      { word: 'Videospill',  image: 'https://i.postimg.cc/tZFC9rhF/temp-Image-PC26-QV.avif',   audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1video.mp3' },
-      { word: 'Ball',        image: 'https://i.postimg.cc/G8vhbMkx/temp-Image-SMSSD4.avif',    audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1ball.mp3' },
-      { word: 'Vëlo',        image: 'https://i.postimg.cc/Q9cxj6pq/temp-Imagev-ZAm8p.avif',    audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1velo.mp3' },
-      { word: 'Radio',       image: 'https://i.postimg.cc/xNYj8K5f/temp-Image-W250-J5.avif',   audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1radio.mp3' },
-      { word: 'Roboter',     image: 'https://i.postimg.cc/vxM8TWhR/temp-Image-Xr-Gmf-G.avif',  audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1roboter.mp3' },
-      { word: 'Wierfel',     image: 'https://i.postimg.cc/vxM8TWhy/temp-Image-Zp-G0-TR.avif',  audio: 'https://github.com/albrechtclaire1007/p1spillsaachen/raw/main/1wierfel.mp3' }
-    ];
-
-    const words = [...fixedPairs].sort(() => Math.random() - 0.5);
-
-    // --- STATE ---
-    let currentWordIndex = 0;
-    let currentAnswer = [];
-    let current = null;
-
-    // --- HELPERS ---
-    const shuffleArray = (arr) => {
-      const s=[...arr];
-      for(let i=s.length-1;i>0;i--){
-        const j=Math.floor(Math.random()*(i+1));
-        [s[i],s[j]]=[s[j],s[i]];
+    /* =============== helpers =============== */
+    const $ = (s, r=document) => r.querySelector(s);
+    const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+    const shuffle = (a) => {
+      const arr=[...a];
+      for(let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]] = [arr[j],arr[i]];
       }
-      return s;
+      return arr;
     };
 
-    function initializeWord(){
-      current = words[currentWordIndex];
+    /* =============== NAV =============== */
+    $$('.tab').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        $$('.tab').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        $$('.section').forEach(s=>s.classList.remove('active'));
+        const t = btn.getAttribute('data-target');
+        $(t).classList.add('active');
+      });
+    });
 
-      // header + progress
-      document.getElementById('wordCounter').textContent = `Wuert ${currentWordIndex + 1} vun ${words.length}`;
-      document.getElementById('progressFill').style.width = ((currentWordIndex) / words.length) * 100 + '%';
+    /* =============== AUDIO UNLOCK (shared) =============== */
+    const audio = $('#sharedAudio');
+    let audioUnlocked = false;
+    function unlockAudio(){
+      if (audioUnlocked) return;
+      audio.muted = true;
+      audio.play().then(()=>{
+        audio.pause(); audio.currentTime = 0; audio.muted = false; audioUnlocked = true;
+      }).catch(()=>{});
+    }
+    ['pointerdown','click','touchstart','keydown','focus'].forEach(evt=>{
+      document.addEventListener(evt, unlockAudio, {passive:true});
+    });
 
-      // image + audio
-      const toyImage = document.getElementById('toyImage');
-      toyImage.src = current.image;
-      toyImage.alt = current.word;
-      audioEl.src = current.audio;
+    /* =========================================
+       GAME 1: WRITE THE WORD (drag letters)
+    ==========================================*/
+    const W = {
+      list: shuffle([...window.TOYS]),
+      idx: 0,
+      answer: [],
+      current: null
+    };
+    const wImg = $('#wImage');
+    const wAudioImg = $('#wAudioImg');
+    const wAnswer = $('#wAnswer');
+    const wBank = $('#wBank');
+    const wFeedback = $('#wFeedback');
+    const wNext = $('#wNext');
+    const wCheck = $('#wCheck');
+    const wReset = $('#wReset');
+    const wProgress = $('#wProgress');
+    const wCounter = $('#wCounter');
 
-      // feedback & buttons
-      document.getElementById('feedback').textContent = '';
-      document.getElementById('nextButton').style.display = 'none';
-      document.getElementById('checkButton').disabled = false;
+    function wInitWord(){
+      W.current = W.list[W.idx];
+      wCounter.textContent = `Wuert ${W.idx+1} vun ${W.list.length}`;
+      wProgress.style.width = (W.idx / W.list.length * 100) + '%';
 
-      // answer slots
-      const answerSlots = document.getElementById('answerSlots');
-      answerSlots.innerHTML = '';
-      for (let i = 0; i < current.word.length; i++){
+      wImg.src = W.current.image; wImg.alt = W.current.name;
+      audio.src = W.current.audio;
+      wFeedback.textContent = '';
+      wNext.style.display = 'none';
+      wCheck.disabled = false;
+
+      // slots
+      wAnswer.innerHTML = '';
+      for (let i=0; i<W.current.name.length; i++){
         const slot = document.createElement('div');
         slot.className = 'slot';
         slot.dataset.index = i;
-
-        slot.addEventListener('click', ()=> removeLetter(i));
-        slot.addEventListener('dragover', (e)=>{ e.preventDefault(); slot.classList.add('drag-over'); });
+        slot.addEventListener('click', ()=> wRemove(i));
+        slot.addEventListener('dragover', e=>{e.preventDefault(); slot.classList.add('drag-over');});
         slot.addEventListener('dragleave', ()=> slot.classList.remove('drag-over'));
-        slot.addEventListener('drop', (e)=>{
-          e.preventDefault();
-          slot.classList.remove('drag-over');
+        slot.addEventListener('drop', e=>{
+          e.preventDefault(); slot.classList.remove('drag-over');
           const letter = e.dataTransfer.getData('text/plain');
-          const tileUid = e.dataTransfer.getData('tile-uid');
-          placeLetterInSlot(letter, i, tileUid);
+          const uid = e.dataTransfer.getData('tile-uid');
+          wPlaceIn(letter, i, uid);
         });
-
-        answerSlots.appendChild(slot);
+        wAnswer.appendChild(slot);
       }
 
-      // letter bank (unique tiles so duplicates work)
-      const letterBank = document.getElementById('letterBank');
-      letterBank.innerHTML = '';
-      const shuffled = shuffleArray([...current.word]);
-      shuffled.forEach((letter, idx)=>{
-        const tile = document.createElement('div');
-        tile.className = 'letter-tile';
-        tile.textContent = letter;
-        tile.draggable = true;
-        tile.dataset.uid = `${currentWordIndex}-${idx}-${Math.random().toString(36).slice(2,7)}`;
-
-        tile.addEventListener('click', ()=> placeLetter(tile, letter));
-        tile.addEventListener('dragstart', (e)=>{
-          if (tile.classList.contains('used')) { e.preventDefault(); return; }
-          e.dataTransfer.setData('text/plain', letter);
-          e.dataTransfer.setData('tile-uid', tile.dataset.uid);
+      // bank (unique tiles)
+      wBank.innerHTML = '';
+      shuffle([...W.current.name]).forEach((ch, i)=>{
+        const t = document.createElement('div');
+        t.className = 'tile';
+        t.textContent = ch;
+        t.draggable = true;
+        t.dataset.uid = `${W.idx}-${i}-${Math.random().toString(36).slice(2,7)}`;
+        t.addEventListener('click', ()=> wPlaceClick(t, ch));
+        t.addEventListener('dragstart', e=>{
+          if (t.classList.contains('used')) { e.preventDefault(); return; }
+          e.dataTransfer.setData('text/plain', ch);
+          e.dataTransfer.setData('tile-uid', t.dataset.uid);
           e.dataTransfer.effectAllowed = 'move';
         });
-
-        letterBank.appendChild(tile);
+        wBank.appendChild(t);
       });
 
-      currentAnswer = new Array(current.word.length).fill('');
+      W.answer = new Array(W.current.name.length).fill('');
     }
 
-    function findTileByUid(uid){
-      return Array.from(document.querySelectorAll('.letter-tile')).find(t => t.dataset.uid === uid);
+    function wFindTile(uid){
+      return $$('.tile').find(t => t.dataset.uid === uid);
     }
-
-    function placeLetter(tile, letter){
+    function wPlaceClick(tile, ch){
       if (tile.classList.contains('used')) return;
-      const slots = document.querySelectorAll('.slot');
-      for (let i = 0; i < slots.length; i++){
-        if (currentAnswer[i] === ''){
-          currentAnswer[i] = letter;
-          slots[i].textContent = letter;
-          slots[i].classList.add('filled');
-          slots[i].dataset.tileUid = tile.dataset.uid; // track exact tile
-          tile.classList.add('used');
-          break;
+      const slots = $$('.slot', wAnswer);
+      for (let i=0;i<slots.length;i++){
+        if (W.answer[i] === ''){
+          W.answer[i]=ch; slots[i].textContent=ch; slots[i].classList.add('filled'); slots[i].dataset.uid = tile.dataset.uid;
+          tile.classList.add('used'); break;
         }
       }
     }
-
-    function placeLetterInSlot(letter, slotIndex, tileUid){
-      const slots = document.querySelectorAll('.slot');
-      if (currentAnswer[slotIndex] !== '') removeLetter(slotIndex);
-
-      currentAnswer[slotIndex] = letter;
-      slots[slotIndex].textContent = letter;
-      slots[slotIndex].classList.add('filled');
-      slots[slotIndex].dataset.tileUid = tileUid;
-
-      const tile = findTileByUid(tileUid);
-      if (tile) tile.classList.add('used');
+    function wPlaceIn(ch, idx, uid){
+      const slots = $$('.slot', wAnswer);
+      if (W.answer[idx] !== '') wRemove(idx);
+      W.answer[idx]=ch; slots[idx].textContent=ch; slots[idx].classList.add('filled'); slots[idx].dataset.uid = uid;
+      const tile = wFindTile(uid); if (tile) tile.classList.add('used');
     }
-
-    function removeLetter(slotIndex){
-      if (currentAnswer[slotIndex] === '') return;
-      const slots = document.querySelectorAll('.slot');
-      const tileUid = slots[slotIndex].dataset.tileUid;
-      const tile = tileUid ? findTileByUid(tileUid) : null;
+    function wRemove(idx){
+      if (W.answer[idx] === '') return;
+      const slots = $$('.slot', wAnswer);
+      const uid = slots[idx].dataset.uid;
+      const tile = uid ? wFindTile(uid) : null;
       if (tile) tile.classList.remove('used');
-
-      currentAnswer[slotIndex] = '';
-      slots[slotIndex].textContent = '';
-      slots[slotIndex].classList.remove('filled','correct','incorrect');
-      delete slots[slotIndex].dataset.tileUid;
+      W.answer[idx]=''; slots[idx].textContent=''; slots[idx].classList.remove('filled','correct','incorrect'); delete slots[idx].dataset.uid;
     }
-
-    function resetWord(){
-      const slots = document.querySelectorAll('.slot');
-      const tiles = document.querySelectorAll('.letter-tile');
-      slots.forEach(s => { s.textContent=''; s.className='slot'; delete s.dataset.tileUid; });
-      tiles.forEach(t => t.classList.remove('used'));
-      currentAnswer = new Array(words[currentWordIndex].word.length).fill('');
-      document.getElementById('feedback').textContent = '';
-      document.getElementById('nextButton').style.display = 'none';
-      document.getElementById('checkButton').disabled = false;
+    function wResetAll(){
+      $$('.slot', wAnswer).forEach(s=>{s.textContent=''; s.className='slot'; delete s.dataset.uid;});
+      $$('.tile', wBank).forEach(t=> t.classList.remove('used'));
+      W.answer = new Array(W.current.name.length).fill('');
+      wFeedback.textContent=''; wNext.style.display='none'; wCheck.disabled=false;
     }
+    function wCheckAns(){
+      const target = W.current.name;
+      const given = W.answer.join('');
+      const slots = $$('.slot', wAnswer);
 
-    function checkAnswer(){
-      const target = current.word;
-      const answer = currentAnswer.join('');
-      const slots = document.querySelectorAll('.slot');
-      const feedback = document.getElementById('feedback');
-
-      if (answer === target){
-        slots.forEach(s => s.classList.add('correct'));
-        feedback.textContent = 'Super!';
-        feedback.className = 'feedback success';
-        document.getElementById('checkButton').disabled = true;
-        document.getElementById('nextButton').style.display = 'inline-block';
-      } else {
-        for (let i = 0; i < target.length; i++){
-          if (currentAnswer[i] !== target[i]){
-            const tileUid = slots[i].dataset.tileUid;
-            const tile = tileUid ? findTileByUid(tileUid) : null;
+      if (given === target){
+        slots.forEach(s=> s.classList.add('correct'));
+        wFeedback.textContent='Super!';
+        wFeedback.className='feedback success';
+        wCheck.disabled = true; wNext.style.display='inline-block';
+      }else{
+        for(let i=0;i<target.length;i++){
+          if (W.answer[i] !== target[i]){
+            const uid = slots[i].dataset.uid;
+            const tile = uid ? wFindTile(uid) : null;
             if (tile) tile.classList.remove('used');
-
             slots[i].classList.add('incorrect');
-            currentAnswer[i] = '';
-            slots[i].textContent = '';
-            setTimeout(()=>{ slots[i].classList.remove('incorrect','filled'); }, 450);
-          } else {
+            W.answer[i]=''; slots[i].textContent='';
+            setTimeout(()=> slots[i].classList.remove('incorrect','filled'), 420);
+          }else{
             slots[i].classList.add('correct');
           }
         }
       }
     }
-
-    function nextWord(){
-      currentWordIndex++;
-      if (currentWordIndex >= words.length){
-        const container = document.querySelector('.game-container');
-        container.innerHTML = `
-          <div class="final-screen">
-            <h1>Gratulatioun!</h1>
-            <div class="final-score">Dir hutt all ${words.length} Wierder richteg geschriwwen!</div>
-            <button class="game-button" style="background:#8cc987;color:#fff;border-radius:25px" onclick="location.reload()">Nei ufänken</button>
+    function wNextWord(){
+      W.idx++;
+      if (W.idx >= W.list.length){
+        $('#writeGame').innerHTML = `
+          <div class="finish">
+            <h2>Gratulatioun!</h2>
+            <p>Du hues all ${W.list.length} Wierder geschriwwen.</p>
+            <button class="tab btn check" onclick="location.reload()">Nei ufänken</button>
           </div>`;
-      } else {
-        initializeWord();
+      }else{
+        wInitWord();
+      }
+    }
+    wCheck.addEventListener('click', wCheckAns);
+    wReset.addEventListener('click', wResetAll);
+    wNext.addEventListener('click', wNextWord);
+    wAudioImg.addEventListener('click', ()=>{ if (!W.current) return; audio.src=W.current.audio; audio.currentTime=0; audio.play().catch(()=>{}); });
+    wAudioImg.addEventListener('keydown', (e)=>{ if (e.key==='Enter'||e.key===' '){ e.preventDefault(); wAudioImg.click(); } });
+
+    /* =========================================
+       GAME 2: LISTEN & CLICK
+    ==========================================*/
+    const L = { remaining:[], current:null, started:false };
+    const lGrid = $('#lGrid');
+    const lFeedback = $('#lFeedback');
+    const lAudioImg = $('#lAudioImg');
+
+    function lLoadGrid(){
+      lGrid.innerHTML='';
+      shuffle([...window.TOYS]).forEach(t=>{
+        const c = document.createElement('div');
+        c.className='card';
+        c.innerHTML=`<img src="${t.image}" alt="${t.name}">`;
+        c.addEventListener('click', ()=> lChoose(t, c));
+        lGrid.appendChild(c);
+      });
+    }
+    function lStart(){
+      if (L.started) return;
+      L.started = true;
+      lFeedback.textContent='Wat hues du héieren?';
+      L.remaining = shuffle([...window.TOYS]);
+      lNext();
+    }
+    function lNext(){
+      if (L.remaining.length===0){
+        lFeedback.textContent='Super, du hues alles richteg geléist!';
+        lFeedback.className='feedback success';
+        lAudioImg.setAttribute('aria-disabled','true');
+        return;
+      }
+      L.current = L.remaining.pop();
+      audio.src = L.current.audio;
+      const p = audio.play(); if (p && p.catch) p.catch(()=>{});
+    }
+    function lChoose(toy, card){
+      if (!L.started || !L.current) return;
+      if (toy.name === L.current.name){
+        card.classList.add('flash');
+        lFeedback.textContent='Super!';
+        lFeedback.classList.add('success');
+        setTimeout(()=>{ card.classList.remove('flash'); lFeedback.classList.remove('success'); lNext(); }, 650);
+      }else{
+        card.classList.add('wrong');
+        lFeedback.textContent='Nach eng Kéier probéieren!';
+        setTimeout(()=> card.classList.remove('wrong'), 350);
+      }
+    }
+    const lStartAndUnlock = ()=>{ lStart(); unlockAudio(); };
+    lAudioImg.addEventListener('click', ()=>{
+      if (!L.started){ lStartAndUnlock(); return; }
+      if (L.current){ audio.currentTime=0; audio.play().catch(()=>{}); }
+    });
+    lAudioImg.addEventListener('keydown', (e)=>{ if (e.key==='Enter'||e.key===' '){ e.preventDefault(); lAudioImg.click(); } });
+
+    /* =========================================
+       GAME 3: MEMO (AUDIO <-> IMAGE)
+    ==========================================*/
+    const M = { deck:[], first:null, lock:false, pairs:0 };
+    const mGrid = $('#mGrid');
+    const mFeedback = $('#mFeedback');
+
+    function mBuildDeck(){
+      // Choose a subset (6 pairs -> 12 cards) for good pacing
+      const subset = shuffle([...window.TOYS]).slice(0,6);
+      const cards = [];
+      subset.forEach((t, i)=>{
+        cards.push({ id:`${i}-img`, kind:'img', toy:t });
+        cards.push({ id:`${i}-aud`, kind:'aud', toy:t });
+      });
+      M.deck = shuffle(cards);
+    }
+
+    function mRender(){
+      mGrid.innerHTML='';
+      M.deck.forEach(card=>{
+        const el = document.createElement('div');
+        el.className='memo-card';
+        el.dataset.id = card.id;
+        el.dataset.kind = card.kind;
+        el.dataset.name = card.toy.name;
+
+        const face = document.createElement('div');
+        face.className='memo-face'; face.textContent='?';
+        el.appendChild(face);
+
+        if (card.kind==='img'){
+          const img = document.createElement('img');
+          img.src = card.toy.image; img.alt = card.toy.name;
+          img.classList.add('memo-hidden'); img.loading='lazy';
+          el.appendChild(img);
+        }else{
+          const sp = document.createElement('img');
+          sp.src = 'https://i.postimg.cc/kXzQdjQp/temp-Imagef0iu-HC.avif';
+          sp.alt = 'Toun';
+          sp.className='memo-speaker memo-hidden';
+          el.appendChild(sp);
+        }
+
+        el.addEventListener('click', ()=> mFlip(el, card));
+        mGrid.appendChild(el);
+      });
+    }
+
+    function mFlip(el, card){
+      if (M.lock || el.classList.contains('memo-correct')) return;
+
+      // reveal
+      el.querySelector('.memo-face').classList.add('memo-hidden');
+      const hidden = el.querySelector('.memo-hidden');
+      if (hidden) hidden.classList.remove('memo-hidden');
+
+      if (card.kind==='aud'){
+        audio.src = card.toy.audio;
+        audio.currentTime = 0;
+        audio.play().catch(()=>{});
+      }
+
+      if (!M.first){
+        M.first = { el, card };
+      }else{
+        // second choice
+        M.lock = true;
+        const match = (M.first.card.toy.name === card.toy.name) && (M.first.card.kind !== card.kind);
+        if (match){
+          M.first.el.classList.add('memo-correct');
+          el.classList.add('memo-correct');
+          M.pairs++;
+          M.first = null; M.lock = false;
+          if (M.pairs === 6){
+            mFeedback.textContent = 'Fantastesch! All Päerchen fonnt!';
+            mFeedback.className = 'feedback success';
+          }else{
+            mFeedback.textContent = 'Super! Weider sou.';
+            mFeedback.className = 'feedback success';
+          }
+        }else{
+          M.first.el.classList.add('memo-wrong');
+          el.classList.add('memo-wrong');
+          setTimeout(()=>{
+            // hide again
+            [M.first.el, el].forEach(node=>{
+              node.classList.remove('memo-wrong');
+              const face = node.querySelector('.memo-face');
+              const other = node.querySelector(':not(.memo-face)');
+              if (other) other.classList.add('memo-hidden');
+              if (face) face.classList.remove('memo-hidden');
+            });
+            M.first = null; M.lock = false;
+          }, 650);
+        }
       }
     }
 
-    // Buttons
-    document.getElementById('checkButton').addEventListener('click', checkAnswer);
-    document.getElementById('resetButton').addEventListener('click', resetWord);
-    document.getElementById('nextButton').addEventListener('click', nextWord);
+    /* ====== INIT ALL GAMES ====== */
+    // Game 1
+    wInitWord();
 
-    // Start
-    initializeWord();
+    // Game 2
+    lLoadGrid();
+
+    // Game 3
+    mBuildDeck();
+    mRender();
   </script>
 </body>
 </html>
+
 
