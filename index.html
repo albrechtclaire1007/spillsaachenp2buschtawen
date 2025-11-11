@@ -13,12 +13,12 @@
   }
 
   :root{
-    --p2-main:#8cc987;
+    --p2-main:#8cc987;  /* green */
     --p2-soft:#d8ebd4;
     --p2-dark:#6bae72;
 
-    --prep-blue:#b2d3f5;  /* mam */
-    --prep-green:#8cc987; /* mam (neutral) */
+    --prep-blue:#b2d3f5;  /* mam (default) */
+    --prep-green:#8cc987; /* mam for Videospill/Kaartespill */
     --prep-red:#ffb5b5;   /* mat der */
 
     --ink:#1f1f1f; --white:#fff;
@@ -45,8 +45,8 @@
   .wrap{min-height:100%; display:flex; flex-direction:column; align-items:center; gap:2.2vmin; padding:2.2vmin 3vmin 4vmin;}
   h1{margin:.2rem 0 0; text-align:center; font-size:clamp(2rem,6vmin,4.2rem); color:var(--ink);}
 
-  /* --- Common --- */
-  .btn{border:var(--border) solid var(--ink); background:#fff; color:var(--ink);
+  /* Buttons & feedback */
+  .btn{border:var(--border) solid var(--ink); background:#fff; color:#000;
     padding:.45rem .85rem; border-radius:14px; cursor:pointer; font-size:1.05rem;}
   .btn.green{background:var(--p2-main); color:#fff; border-color:var(--p2-dark);}
   .btn.red{background:#ff6b6b; color:#fff; border-color:#c94f4f;}
@@ -208,6 +208,7 @@
 <audio id="speaker" preload="auto" playsinline></audio>
 
 <script>
+/* ---------- DATA ---------- */
 const RAW="https://raw.githubusercontent.com/albrechtclaire1007/p1spillsaachen/main";
 const ITEMS=[
   {id:'teddybier',word:'en Teddybier',img:'https://i.postimg.cc/XpDBC4jQ/1.png',audio:`${RAW}/teddybier1.mp3`},
@@ -223,67 +224,280 @@ const ITEMS=[
   {id:'videospill',word:'e Videospill',img:'https://i.postimg.cc/S2rJNp1L/4.png',audio:`${RAW}/1video.mp3`,correctId:'fliger'},
   {id:'pesel',word:'e Pësel',img:'https://i.postimg.cc/SXbs6Kw7/7.png',audio:`${RAW}/1pesel.mp3`}
 ];
+
+/* ---------- UTIL ---------- */
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const speaker=document.getElementById('speaker');
+async function playSound(src){try{if(speaker.src!==src)speaker.src=src;speaker.currentTime=0;await speaker.play();}catch(e){}}
+function flash(el,ok){el.classList.remove('flash-good','flash-bad');void el.offsetWidth;el.classList.add(ok?'flash-good':'flash-bad');setTimeout(()=>el.classList.remove('flash-good','flash-bad'),260);}
+
+/* ---------- NAV ---------- */
 const pages=["g1","g2","g3","g4","g5","g6"];
-let pageIdx=0;const flowLabel=document.getElementById('flowLabel'),prevBtn=document.getElementById('prev'),nextBtn=document.getElementById('next');
+let pageIdx=0;
+const flowLabel=document.getElementById('flowLabel'),prevBtn=document.getElementById('prev'),nextBtn=document.getElementById('next');
 function labelFor(i){return `${i+1}. Spill`;}
 function updateNav(){flowLabel.textContent=labelFor(pageIdx);prevBtn.classList.toggle('hidden',pageIdx===0);nextBtn.classList.toggle('hidden',pageIdx===pages.length-1);}
 function showPage(i){pageIdx=Math.max(0,Math.min(pages.length-1,i));pages.forEach((id,idx)=>document.getElementById(id).classList.toggle('hidden',idx!==pageIdx));updateNav();}
 prevBtn.onclick=()=>showPage(pageIdx-1);nextBtn.onclick=()=>showPage(pageIdx+1);
-const speaker=document.getElementById('speaker');async function playSound(src){try{if(speaker.src!==src)speaker.src=src;await speaker.play();}catch(e){}}
-function flash(el,ok){el.classList.remove('flash-good','flash-bad');void el.offsetWidth;el.classList.add(ok?'flash-good':'flash-bad');setTimeout(()=>el.classList.remove('flash-good','flash-bad'),260);}
 
-/* --- Simplified games 1–3 init --- */
-function initBasics(){
-  // only show game 1 grid image to start; others same as before
-}
-initBasics();
-
-/* --- Spill 5 dynamic prep colour --- */
-const nounSq=document.getElementById('nounSq'),nounImg=document.getElementById('nounImg'),prepPill=document.getElementById('prepPill');
-let bag5=[],current5=null;
+/* ---------- SHARED RULES ---------- */
 function needsMatDer(it){return(it.id==='popp'||it.id==='trommel');}
-function neutralMam(it){return(it.id==='videospill'||it.id==='kaartespill');}
-function refill5(){bag5=shuffle([...ITEMS]);}
-function setPrepColor(it){
-  if(needsMatDer(it)){prepPill.textContent='mat der';prepPill.style.background='var(--prep-red)';}
-  else if(neutralMam(it)){prepPill.textContent='mam';prepPill.style.background='var(--prep-green)';}
-  else{prepPill.textContent='mam';prepPill.style.background='var(--prep-blue)';}
-}
-function next5(){
-  if(bag5.length===0){showPage(5);return;}
-  current5=bag5.pop();nounImg.src=current5.img;nounImg.alt=current5.word;setPrepColor(current5);
-}
-nounSq.addEventListener('click',next5);
+function specialMamGreen(it){return(it.id==='videospill'||it.id==='kaartespill');}
 
-/* --- Spill 6 --- */
-const g6Img=document.getElementById('g6Img'),g6MamBlue=document.getElementById('g6MamBlue'),
-      g6MamGreen=document.getElementById('g6MamGreen'),g6MatDer=document.getElementById('g6MatDer');
-let bag6=[],current6=null;
-function refill6(){bag6=shuffle([...ITEMS]);}
-function g6Set(it){current6=it;g6Img.src=it.img;g6Img.alt=it.word;}
-function g6Next(){if(bag6.length===0){return;}g6Set(bag6.pop());}
+/* ---------- SPILL 1: Listen & Click ---------- */
+const grid1=document.getElementById('grid1');
+const play1=document.getElementById('play1');
+let bag1=shuffle([...ITEMS]); let target1=null;
+
+function layoutG1(){
+  grid1.innerHTML="";
+  shuffle([...ITEMS]).forEach(it=>{
+    const b=document.createElement('button');
+    b.className='imgToken';
+    const img=document.createElement('img');
+    img.src=it.img; img.alt=it.word;
+    b.appendChild(img);
+    b.onclick=()=>checkG1(it,b);
+    grid1.appendChild(b);
+  });
+}
+function nextG1(){
+  if(bag1.length===0){ showPage(1); return; }
+  target1=bag1.pop();
+  playSound(target1.audio);
+}
+function checkG1(it, el){
+  const correctId = target1.correctId || target1.id; // fliger <-> videospill swap
+  const ok = (it.id===correctId);
+  flash(el, ok);
+  if(ok){ setTimeout(nextG1, 280); }
+}
+play1.onclick=()=>{ if(target1) playSound(target1.audio); };
+
+/* ---------- SPILL 2: Memory ---------- */
+const memGrid=document.getElementById('memGrid');
+const memReset=document.getElementById('memReset');
+let lockMem=false, firstPick=null, solved=0;
+const MEM_IDS=['kaartespill','velo','trommel','popp','radio','teddybier','pesel'];
+const MEM_ITEMS=ITEMS.filter(it=>MEM_IDS.includes(it.id));
+
+function buildMemory(){
+  memGrid.innerHTML=""; lockMem=false; firstPick=null; solved=0;
+  const cards=[];
+  MEM_ITEMS.forEach(it=>{ cards.push({type:'img',key:it.id,it}); cards.push({type:'snd',key:it.id,it}); });
+  shuffle(cards).forEach(card=>{
+    const el=document.createElement('div'); el.className='card'; el.dataset.key=card.key; el.dataset.type=card.type;
+    el.innerHTML=`
+      <div class="inner">
+        <div class="face front"></div>
+        <div class="face back">
+          ${card.type==='img'
+            ? `<img src="${card.it.img}" alt="${card.it.word}" style="width:85%;height:85%;object-fit:contain">`
+            : `<div class="sndWord">${card.it.word}</div>`}
+        </div>
+      </div>`;
+    el.addEventListener('click',()=>flipMem(el,card));
+    memGrid.appendChild(el);
+  });
+}
+function flipMem(el, card){
+  if(lockMem || el.classList.contains('flipped')) return;
+  el.classList.add('flipped');
+  if(card.type==='snd'){ playSound(card.it.audio); }
+  if(!firstPick){ firstPick=el; return; }
+
+  const match=(firstPick.dataset.key===el.dataset.key) &&
+              (firstPick!==el) &&
+              (firstPick.dataset.type!==el.dataset.type);
+  lockMem=true;
+  setTimeout(()=>{
+    if(match){
+      firstPick.style.pointerEvents='none'; el.style.pointerEvents='none'; solved+=1;
+      if(solved===MEM_ITEMS.length){ showPage(2); }
+    }else{
+      firstPick.classList.remove('flipped'); el.classList.remove('flipped');
+    }
+    firstPick=null; lockMem=false;
+  },650);
+}
+memReset.onclick=buildMemory;
+
+/* ---------- SPILL 3: Big Square ---------- */
+const bigSq=document.getElementById('bigSq'), bigImg=document.getElementById('bigImg'),
+      bigReset=document.getElementById('bigReset'), sayPlay=document.getElementById('sayPlay');
+let bag3=[];
+function refill3(){ bag3=shuffle([...ITEMS]); }
+function next3(){
+  if(bag3.length===0){ showPage(3); return; }
+  const it=bag3.pop();
+  bigImg.src=it.img; bigImg.alt=it.word;
+  bigSq.dataset.current=it.id;
+}
+function reset3(){ refill3(); bigImg.src=''; bigImg.alt=''; bigSq.dataset.current=''; }
+bigSq.addEventListener('click',(e)=>{ if(e.target===bigReset) return; next3(); });
+bigReset.addEventListener('click',(e)=>{ e.stopPropagation(); reset3(); });
+sayPlay.addEventListener('click',()=>{ const it=ITEMS.find(x=>x.id===bigSq.dataset.current); if(it) playSound(it.audio); });
+
+/* ---------- SPILL 4: Spelling ---------- */
+const wImage=document.getElementById('wImage'), wPlayIcon=document.getElementById('wPlayIcon'),
+      wAnswer=document.getElementById('wAnswer'), wBank=document.getElementById('wBank'),
+      wProgress=document.getElementById('wProgress'), wCounter=document.getElementById('wCounter'),
+      wReset=document.getElementById('wReset'), wCheck=document.getElementById('wCheck'), wNext=document.getElementById('wNext');
+
+const W={ list:shuffle([...ITEMS]), idx:0, answer:[], current:null };
+
+function wInitWord(){
+  W.current=W.list[W.idx];
+  wCounter.textContent=`Wuert ${W.idx+1} vun ${W.list.length}`;
+  wProgress.style.width=(W.idx/W.list.length*100)+'%';
+  wImage.src=W.current.img; wImage.alt=W.current.word;
+
+  // slots
+  wAnswer.innerHTML='';
+  for(let i=0;i<W.current.word.length;i++){
+    const slot=document.createElement('div'); slot.className='slot'; slot.dataset.index=i;
+    slot.addEventListener('click',()=>wRemove(i));
+    slot.addEventListener('dragover',e=>{e.preventDefault(); slot.classList.add('drag-over');});
+    slot.addEventListener('dragleave',()=>slot.classList.remove('drag-over'));
+    slot.addEventListener('drop',e=>{
+      e.preventDefault(); slot.classList.remove('drag-over');
+      const letter=e.dataTransfer.getData('text/plain'); const uid=e.dataTransfer.getData('tile-uid');
+      wPlaceIn(letter,i,uid);
+    });
+    wAnswer.appendChild(slot);
+  }
+
+  // bank
+  wBank.innerHTML='';
+  shuffle([...W.current.word]).forEach((ch,i)=>{
+    const t=document.createElement('div'); t.className='tile'; t.textContent=ch; t.draggable=true;
+    t.dataset.uid=`${W.idx}-${i}-${Math.random().toString(36).slice(2,7)}`;
+    t.addEventListener('click',()=>wPlaceClick(t,ch));
+    t.addEventListener('dragstart',e=>{
+      if(t.classList.contains('used')){ e.preventDefault(); return; }
+      e.dataTransfer.setData('text/plain',ch);
+      e.dataTransfer.setData('tile-uid',t.dataset.uid);
+      e.dataTransfer.effectAllowed='move';
+    });
+    wBank.appendChild(t);
+  });
+
+  W.answer=new Array(W.current.word.length).fill('');
+  wNext.style.display='none'; wCheck.disabled=false;
+}
+function wFind(uid){ return Array.from(document.querySelectorAll('.tile')).find(t=>t.dataset.uid===uid); }
+function wPlaceClick(tile,ch){
+  if(tile.classList.contains('used')) return;
+  const slots=Array.from(document.querySelectorAll('.slot'));
+  for(let i=0;i<slots.length;i++){
+    if(W.answer[i]===''){ W.answer[i]=ch; slots[i].textContent=ch; slots[i].classList.add('filled'); slots[i].dataset.uid=tile.dataset.uid; tile.classList.add('used'); break; }
+  }
+}
+function wPlaceIn(ch,idx,uid){
+  const slots=Array.from(document.querySelectorAll('.slot'));
+  if(W.answer[idx]!=='') wRemove(idx);
+  W.answer[idx]=ch; slots[idx].textContent=ch; slots[idx].classList.add('filled'); slots[idx].dataset.uid=uid;
+  const tile=wFind(uid); if(tile) tile.classList.add('used');
+}
+function wRemove(idx){
+  if(W.answer[idx]==='') return;
+  const slots=Array.from(document.querySelectorAll('.slot')); const uid=slots[idx].dataset.uid; const tile=uid?wFind(uid):null;
+  if(tile) tile.classList.remove('used');
+  W.answer[idx]=''; slots[idx].textContent=''; slots[idx].classList.remove('filled','correct','incorrect'); delete slots[idx].dataset.uid;
+}
+function wResetAll(){
+  Array.from(document.querySelectorAll('.slot')).forEach(s=>{ s.textContent=''; s.className='slot'; delete s.dataset.uid; });
+  Array.from(document.querySelectorAll('.tile')).forEach(t=> t.classList.remove('used'));
+  W.answer=new Array(W.current.word.length).fill(''); wNext.style.display='none'; wCheck.disabled=false;
+}
+function wCheckAns(){
+  const target=W.current.word; const given=W.answer.join(''); const slots=Array.from(document.querySelectorAll('.slot'));
+  if(given===target){ slots.forEach(s=>s.classList.add('correct')); wCheck.disabled=true; wNext.style.display='inline-block'; }
+  else{
+    for(let i=0;i<target.length;i++){
+      if(W.answer[i]!==target[i]){
+        const uid=slots[i].dataset.uid; const tile=uid?wFind(uid):null;
+        if(tile) tile.classList.remove('used');
+        slots[i].classList.add('incorrect'); W.answer[i]=''; slots[i].textContent='';
+        setTimeout(()=>slots[i].classList.remove('incorrect','filled'),420);
+      }else{ slots[i].classList.add('correct'); }
+    }
+  }
+}
+function wNextWord(){ W.idx++; if(W.idx>=W.list.length){ showPage(4); } else { wInitWord(); } }
+wPlayIcon.addEventListener('click',()=>{ if(W.current) playSound(W.current.audio); });
+wPlayIcon.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); wPlayIcon.click(); }});
+wReset.addEventListener('click',wResetAll);
+wCheck.addEventListener('click',wCheckAns);
+wNext.addEventListener('click',wNextWord);
+
+/* ---------- SPILL 5: Read sentence (dynamic pill) ---------- */
+const nounSq=document.getElementById('nounSq'), nounImg=document.getElementById('nounImg'), prepPill=document.getElementById('prepPill');
+const wEch=document.getElementById('wEch'), wSpillen=document.getElementById('wSpillen'), wGaar=document.getElementById('wGaar');
+let bag5=[], current5=null;
+
+function refill5(){ bag5=shuffle([...ITEMS]); }
+function setPrepColour(it){
+  prepPill.className='pill';
+  if(needsMatDer(it)){ prepPill.textContent='mat der'; prepPill.classList.add('pill-red'); }
+  else if(specialMamGreen(it)){ prepPill.textContent='mam'; prepPill.classList.add('pill-green'); }
+  else { prepPill.textContent='mam'; prepPill.classList.add('pill-blue'); }
+}
+function setSentenceItem(it){
+  current5=it; nounImg.src=it.img; nounImg.alt=it.word; setPrepColour(it);
+}
+function nextSentence(){
+  if(bag5.length===0){ showPage(5); return; }
+  setSentenceItem(bag5.pop());
+}
+// audio per piece
+wEch.addEventListener('click',()=>playSound(`${RAW}/ech.mp3`));
+wSpillen.addEventListener('click',()=>playSound(`${RAW}/spillen.mp3`));
+wGaar.addEventListener('click',()=>playSound(`${RAW}/gär.mp3`));
+prepPill.addEventListener('click',()=> playSound(prepPill.textContent==='mat der'? `${RAW}/mat%20der.mp3` : `${RAW}/mam.mp3`));
+nounSq.addEventListener('click',nextSentence);
+
+/* ---------- SPILL 6: Full sentence + 3 stacked preps ---------- */
+const g6Img=document.getElementById('g6Img'), g6MamBlue=document.getElementById('g6MamBlue'),
+      g6MamGreen=document.getElementById('g6MamGreen'), g6MatDer=document.getElementById('g6MatDer');
+let bag6=[], current6=null;
+
+function refill6(){ bag6=shuffle([...ITEMS]); }
+function g6Set(it){ current6=it; g6Img.src=it.img; g6Img.alt=it.word; }
+function g6Next(){ if(bag6.length===0){ return; } g6Set(bag6.pop()); }
 function g6Check(choice){
   let correct;
-  if(needsMatDer(current6))correct='mat der';
-  else if(neutralMam(current6))correct='mam-green';
+  if(needsMatDer(current6)) correct='mat der';
+  else if(specialMamGreen(current6)) correct='mam-green';
   else correct='mam-blue';
-  const ok=(choice===correct);
-  const targetEl=choice==='mat der'?g6MatDer:(choice==='mam-green'?g6MamGreen:g6MamBlue);
-  flash(targetEl,ok);
-  if(ok)setTimeout(g6Next,700);
-}
-g6MamBlue.onclick=()=>g6Check('mam-blue');
-g6MamGreen.onclick=()=>g6Check('mam-green');
-g6MatDer.onclick=()=>g6Check('mat der');
 
-/* --- Init --- */
-function initAll(){
-  refill5();next5();
-  refill6();g6Next();
+  const ok = (choice===correct);
+  const targetEl = choice==='mat der' ? g6MatDer : (choice==='mam-green' ? g6MamGreen : g6MamBlue);
+  flash(targetEl, ok);
+  if(ok){ setTimeout(g6Next, 700); }
+}
+g6MamBlue.addEventListener('click',()=>g6Check('mam-blue'));
+g6MamGreen.addEventListener('click',()=>g6Check('mam-green'));
+g6MatDer.addEventListener('click',()=>g6Check('mat der'));
+
+/* ---------- INIT ---------- */
+function init(){
+  // Spill 1
+  layoutG1(); nextG1();
+  // Spill 2
+  buildMemory();
+  // Spill 3
+  reset3(); next3();
+  // Spill 4
+  W.list=shuffle([...ITEMS]); W.idx=0; wInitWord();
+  // Spill 5
+  refill5(); nextSentence();
+  // Spill 6
+  refill6(); g6Next();
+
   showPage(0);
 }
-initAll();
+init();
 </script>
 </body>
 </html>
